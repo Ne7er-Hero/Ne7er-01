@@ -1,0 +1,46 @@
+Sub MoveLogFiles()
+    Dim fso As Object
+    Dim folder As Object
+    Dim file As Object
+    Dim currentPath As String
+    Dim targetFolder As String
+    Dim fileName As String
+    Dim filePrefix As String
+    
+    ' 创建 FileSystemObject
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    
+    ' 获取当前文件夹路径
+    currentPath = ThisWorkbook.Path
+    
+    ' 获取当前文件夹对象
+    Set folder = fso.GetFolder(currentPath)
+    
+    ' 遍历当前文件夹中的文件
+    For Each file In folder.Files
+        ' 仅处理 .log 文件
+        If LCase(fso.GetExtensionName(file.Name)) = "log" Then
+            fileName = file.Name
+            ' 取文件名前9位
+            filePrefix = Left(fileName, 9)
+            
+            ' 构建目标文件夹路径
+            targetFolder = currentPath & "\" & filePrefix
+            
+            ' 如果目标文件夹不存在，则创建
+            If Not fso.FolderExists(targetFolder) Then
+                fso.CreateFolder targetFolder
+            End If
+            
+            ' 移动文件
+            file.Move targetFolder & "\" & fileName
+        End If
+    Next file
+    
+    ' 释放对象
+    Set folder = Nothing
+    Set fso = Nothing
+    
+    ' 提示完成
+    MsgBox "所有 .log 文件已整理完成！", vbInformation, "完成"
+End Sub

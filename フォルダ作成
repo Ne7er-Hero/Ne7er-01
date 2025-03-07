@@ -1,0 +1,48 @@
+Sub CreateFolders()
+    Dim ws As Worksheet
+    Dim cell As Range
+    Dim folderName As String
+    Dim basePath As String
+    Dim invalidChars As String
+    Dim i As Integer
+    
+    ' 设置基础路径为当前工作簿所在目录
+    basePath = ThisWorkbook.Path & "\"
+    If basePath = "\" Then
+        MsgBox "请先保存工作簿再运行此宏", vbExclamation
+        Exit Sub
+    End If
+    
+    ' 定义非法字符集合
+    invalidChars = "\/:*?""<>|"
+    
+    ' 设置要操作的工作表（默认使用活动工作表）
+    Set ws = ActiveSheet
+    
+    ' 遍历B3到B76单元格
+    For Each cell In ws.Range("B3:B76")
+        folderName = Trim(cell.Value)
+        
+        ' 跳过空单元格
+        If folderName = "" Then GoTo NextCell
+        
+        ' 过滤非法字符
+        For i = 1 To Len(invalidChars)
+            folderName = Replace(folderName, Mid(invalidChars, i, 1), "")
+        Next i
+        
+        ' 创建文件夹（自动跳过已存在的）
+        On Error Resume Next
+        If Len(Dir(basePath & folderName, vbDirectory)) = 0 Then
+            MkDir basePath & folderName
+            If Err.Number <> 0 Then
+                Debug.Print "创建失败：" & folderName & " | " & Err.Description
+            End If
+        End If
+        On Error GoTo 0
+
+NextCell:
+    Next cell
+    
+    MsgBox "文件夹创建完成！已跳过空单元格和非法名称", vbInformation
+End Sub

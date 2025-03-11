@@ -1,0 +1,41 @@
+Sub ExtractMultiFiles()
+    Dim srcFolder As String, newFile As String
+    Dim wsList As Worksheet, wsDest As Worksheet
+    Dim cell As Range, fName As String
+    Dim srcWb As Workbook, destWb As Workbook
+    Dim srcSheet As Worksheet, unionRng As Range
+    
+    '设置路径（修改为实际路径）
+    srcFolder = "C:\YourFolder\"   '源文件目录
+    newFile = "C:\Output\Result.xlsx"  '输出文件路径
+    
+    Set wsList = ThisWorkbook.Worksheets("Sheet1") '修改为包含文件名的列表工作表
+    Set destWb = Workbooks.Add
+    Set wsDest = destWb.Worksheets(1)
+    
+    Application.ScreenUpdating = False
+    
+    For Each cell In wsList.Range("A1", wsList.Cells(Rows.Count, 1).End(xlUp))
+        fName = srcFolder & cell.Value
+        If Dir(fName) = "" Then GoTo NextFile
+        
+        Set srcWb = Workbooks.Open(fName, ReadOnly:=True)
+        Set srcSheet = srcWb.Worksheets("Sheet1") '修改为需要提取的工作表名
+            
+        On Error Resume Next
+        Set unionRng = Union(srcSheet.Rows(25), srcSheet.Rows(27))
+        On Error GoTo 0
+        
+        If Not unionRng Is Nothing Then
+            unionRng.Copy wsDest.Cells(wsDest.Rows.Count, "A").End(xlUp).Offset(1)
+        End If
+        
+        srcWb.Close False
+NextFile:
+    Next cell
+    
+    destWb.SaveAs newFile
+    destWb.Close True
+    Application.ScreenUpdating = True
+    MsgBox "已完成 " & wsList.Range("A1").End(xlDown).Row & " 个文件的提取"
+End Sub

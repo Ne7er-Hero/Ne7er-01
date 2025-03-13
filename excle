@@ -1,0 +1,1 @@
+=IFERROR(IF(EXACT(INDEX(Sheet2!D:D, MATCH(Sheet1!A2, Sheet2!B:B, 0)), "xxxx"), "A", "B"), "B")

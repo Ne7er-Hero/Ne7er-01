@@ -1,0 +1,29 @@
+---
+- name: Upgrade multiple packages to the latest available version
+  hosts: my_hosts  # 可以修改为实际主机组
+  become: yes
+  tasks:
+    - name: Ensure the latest version of zlib-devel is installed
+      yum:
+        name: zlib-devel
+        state: latest
+
+    - name: Ensure the latest version of gdb is installed
+      yum:
+        name: gdb
+        state: latest
+
+    - name: Ensure the latest version of glibc is installed
+      yum:
+        name: glibc
+        state: latest
+
+    - name: Ensure the latest version of gcc is installed
+      yum:
+        name: gcc
+        state: latest
+
+    - name: Ensure the latest version of metricbeat is installed
+      yum:
+        name: metricbeat
+        state: latest

@@ -1,0 +1,60 @@
+# full_setup.yml
+
+- name: Install system packages and deploy nginx & wildfly
+  hosts: all
+  become: true
+  vars:
+    # 软件包版本（可根据你系统实际情况调整）
+    gdb_ver: gdb-8.2-15.el8
+    vsftpd_ver: vsftpd-3.0.3-31.el8
+    ftp_ver: ftp-0.17-78.el8
+    java_pkg: java-21-openjdk
+
+    # 压缩包路径（已提前放到目标主机或你可以添加 get_url / copy）
+    nginx_archive: /tmp/nginx-1.24.0.tar.gz
+    nginx_dest: /opt/nginx
+
+    wildfly_zip: /tmp/wildfly-30.0.1.Final.zip
+    wildfly_dest: /opt/wildfly
+
+  tasks:
+
+    ### 安装系统工具包 ###
+    - name: Install specified packages
+      yum:
+        name:
+          - "{{ gdb_ver }}"
+          - "{{ vsftpd_ver }}"
+          - "{{ ftp_ver }}"
+          - "{{ java_pkg }}"
+          - tar
+          - unzip
+        state: present
+
+    ### 安装 Nginx ###
+    - name: Create nginx destination directory
+      file:
+        path: "{{ nginx_dest }}"
+        state: directory
+        mode: '0755'
+
+    - name: Extract nginx tar.gz archive
+      unarchive:
+        src: "{{ nginx_archive }}"
+        dest: "{{ nginx_dest }}"
+        remote_src: yes
+        creates: "{{ nginx_dest }}/sbin/nginx"  # 根据你实际解压结构改
+
+    ### 安装 WildFly ###
+    - name: Create wildfly destination directory
+      file:
+        path: "{{ wildfly_dest }}"
+        state: directory
+        mode: '0755'
+
+    - name: Extract wildfly zip archive
+      unarchive:
+        src: "{{ wildfly_zip }}"
+        dest: "{{ wildfly_dest }}"
+        remote_src: yes
+        creates: "{{ wildfly_dest }}/bin/standalone.sh"

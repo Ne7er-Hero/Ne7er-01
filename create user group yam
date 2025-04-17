@@ -1,0 +1,43 @@
+---
+- name: Upload, extract kankyokochiku_tools, and run scripts with fixed argument
+  hosts: your_target_group
+  become: yes
+  vars:
+    bundle_src: kankyokochiku_tools.tar.gz
+    bundle_dest: /tmp/kankyokochiku_tools.tar.gz
+    extract_path: /tmp/kankyokochiku_tools
+    script1: "{{ extract_path }}/create_groups.sh"
+    script2: "{{ extract_path }}/create_users.sh"
+    fixed_arg: adminuser  # 固定参数
+
+  tasks:
+    - name: Copy bundle to remote host
+      copy:
+        src: "{{ bundle_src }}"
+        dest: "{{ bundle_dest }}"
+
+    - name: Ensure extraction directory exists
+      file:
+        path: "{{ extract_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: Extract bundle on remote host
+      ansible.builtin.unarchive:
+        src: "{{ bundle_dest }}"
+        dest: /tmp
+        remote_src: yes
+
+    - name: Ensure both scripts are executable
+      file:
+        path: "{{ item }}"
+        state: file
+        mode: '0755'
+      loop:
+        - "{{ script1 }}"
+        - "{{ script2 }}"
+
+    - name: Run both scripts with fixed argument
+      shell: |
+        {{ script1 }} {{ fixed_arg }}
+        {{ script2 }} {{ fixed_arg }}

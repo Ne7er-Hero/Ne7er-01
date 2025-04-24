@@ -1,0 +1,56 @@
+---
+- name: Local user mutual SSH trust (simulate ssh-copy-id)
+  hosts: all
+  become: yes
+
+  vars:
+    user_map:
+      a: [A1, A2, A3, A4]
+      b: [B1, B2, B3, B4]
+      c: [C1, C2, C3, C4]
+
+  tasks:
+    - name: Set local users list
+      set_fact:
+        local_users: "{{ user_map[inventory_hostname] }}"
+
+    - name: Ensure .ssh directory for each user
+      file:
+        path: "/home/{{ item }}/.ssh"
+        state: directory
+        owner: "{{ item }}"
+        group: "{{ item }}"
+        mode: '0700'
+      loop: "{{ local_users }}"
+
+    - name: Generate ssh key if not exists
+      become_user: "{{ item }}"
+      shell: ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa <<< y
+      args:
+        creates: "/home/{{ item }}/.ssh/id_rsa"
+      loop: "{{ local_users }}"
+
+    - name: Read all public keys into a dictionary
+      slurp:
+        src: "/home/{{ item }}/.ssh/id_rsa.pub"
+      register: user_keys
+      loop: "{{ local_users }}"
+
+    - name: Build pub_keys dict {username: pubkey}
+      set_fact:
+        pub_keys: "{{ pub_keys | default({}) | combine({ item.item: item.content | b64decode }) }}"
+      loop: "{{ user_keys.results }}"
+
+    - name: Inject pubkeys into each other's authorized_keys (simulate ssh-copy-id)
+      authorized_key:
+        user: "{{ user }}"
+        key: "{{ pub_keys[other_user] }}"
+        manage_dir: no
+        state: present
+      loop: "{{ local_users }}"
+      loop_control:
+        loop_var: user
+      with_nested:
+        - "{{ local_users }}"
+        - "{{ local_users }}"
+      when: user != other_user

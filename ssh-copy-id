@@ -38,7 +38,8 @@
 
     - name: Build pub_keys dict {username: pubkey}
       set_fact:
-        pub_keys: "{{ pub_keys | default({}) | combine({ item.item: item.content | b64decode }) }}"
+        pub_keys: >-
+          {{ pub_keys | default({}) | combine({ (item.item): (item.content | b64decode) }) }}
       loop: "{{ user_keys.results }}"
 
     - name: Inject pubkeys into each other's authorized_keys (simulate ssh-copy-id)

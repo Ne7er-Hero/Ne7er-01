@@ -1,0 +1,113 @@
+- name: Local user mutual SSH trust based on a.txt (超稳版)
+  hosts: wcp
+  become: yes
+
+  vars:
+    user_info_file: "/path/to/a.txt"
+
+  tasks:
+    - name: Copy a.txt to the target host
+      copy:
+        src: "{{ user_info_file }}"
+        dest: "/tmp/a.txt"
+      when: inventory_hostname == 'wcp'
+
+    - name: Read and parse a.txt
+      slurp:
+        src: "/tmp/a.txt"
+      register: user_info_raw
+
+    - name: Parse user info into structured list
+      set_fact:
+        user_info_list: >-
+          {{
+            user_info_raw.content | b64decode | splitlines()
+            | map('regex_replace', ' *, *', ',')  # 删除多余空格
+            | map('split', ',')
+            | list
+          }}
+
+    - name: Prepare users and pubkey paths
+      set_fact:
+        users_info: >-
+          {{
+            dict(
+              user_info_list 
+              | selectattr('0', 'equalto', inventory_hostname)
+              | map('extract', [1,2,3])
+              | map('community.general.dict_kv', '0', 'slice(1, None))
+              | list
+            )
+          }}
+        pubkey_paths: >-
+          {{
+            dict(
+              user_info_list
+              | selectattr('0', 'equalto', inventory_hostname)
+              | map('extract', [1,2])
+              | map('join', '/')
+              | map('regex_replace', '^(.*)$', '/home/\\1/.ssh/id_rsa.pub')
+              | zip(user_info_list | selectattr('0', 'equalto', inventory_hostname) | map('2'))
+              | map('community.general.dict_kv', '1', '0')
+              | list
+            )
+          }}
+
+    - name: Check if public key files exist
+      stat:
+        path: "{{ pubkey_paths[item] }}"
+      register: pubkey_files
+      loop: "{{ pubkey_paths.keys() | list }}"
+
+    - name: Set available pubkeys
+      set_fact:
+        available_pubkeys: >-
+          {{
+            dict(
+              pubkey_files.results 
+              | selectattr('stat.exists', 'equalto', true)
+              | map(attribute='item')
+              | zip(pubkey_files.results | selectattr('stat.exists', 'equalto', true) | map('attribute', 'stat.path'))
+            )
+          }}
+
+    - name: Read available public keys
+      slurp:
+        src: "{{ available_pubkeys[item] }}"
+      register: user_pubkeys
+      loop: "{{ available_pubkeys.keys() | list }}"
+      when: available_pubkeys is defined and available_pubkeys | length > 0
+
+    - name: Set pub_keys dict
+      set_fact:
+        pub_keys: >-
+          {{
+            pub_keys | default({}) 
+            | combine({ (item.item): (item.content | b64decode) })
+          }}
+      loop: "{{ user_pubkeys.results }}"
+      when: user_pubkeys is defined and user_pubkeys.results | length > 0
+
+    - name: Ensure .ssh and authorized_keys exist
+      file:
+        path: "/home/{{ item }}/.ssh"
+        state: directory
+        owner: "{{ item }}"
+        group: "{{ item }}"
+        mode: '0700'
+      loop: "{{ users_info.keys() | list }}"
+      ignore_errors: true  # 用户不存在也跳过
+
+    - name: Inject related pubkeys
+      authorized_key:
+        user: "{{ user_info.key }}"
+        key: "{{ pub_keys[related_user] }}"
+        manage_dir: yes
+        state: present
+      loop: "{{ users_info | dict2items | subelements('value', skip_missing=True) }}"
+      vars:
+        user_info: "{{ item.0 }}"
+        related_user: "{{ item.1 }}"
+      when:
+        - related_user in pub_keys
+        - pub_keys[related_user] is defined

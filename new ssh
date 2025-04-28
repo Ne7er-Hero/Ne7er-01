@@ -1,0 +1,77 @@
+- name: Local user mutual SSH trust based on host in a.txt
+  hosts: wcp
+  become: yes
+
+  vars:
+    user_info_file: "/path/to/a.txt"  # 本地控制节点上 a.txt 的路径
+
+  tasks:
+    - name: Copy a.txt to the target host
+      copy:
+        src: "{{ user_info_file }}"
+        dest: "/tmp/a.txt"
+      when: inventory_hostname == 'wcp'
+
+    - name: Read user info file from target host
+      slurp:
+        src: "/tmp/a.txt"
+      register: user_info_raw
+
+    - name: Parse user info lines into structured data
+      set_fact:
+        user_info_list: >-
+          {{
+            user_info_raw.content | b64decode | splitlines()
+            | map('split', ',') | list
+          }}
+
+    - name: Build users dictionary
+      set_fact:
+        users: "{{ users | default({}) | combine({ (item[1]): (item[2:]) }) }}"
+      loop: "{{ user_info_list }}"
+
+    - name: Debug show users structure
+      debug:
+        var: users
+
+    - name: Ensure .ssh directory exists for each user
+      file:
+        path: "/home/{{ item }}/.ssh"
+        state: directory
+        owner: "{{ item }}"
+        group: "{{ item }}"
+        mode: '0700'
+      loop: "{{ users.keys() | list }}"
+
+    - name: Generate SSH key if not exists
+      become_user: "{{ item }}"
+      shell: ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa <<< y
+      args:
+        creates: "/home/{{ item }}/.ssh/id_rsa"
+      loop: "{{ users.keys() | list }}"
+
+    - name: Read all public keys into a dictionary
+      slurp:
+        src: "/home/{{ item }}/.ssh/id_rsa.pub"
+      register: user_keys
+      loop: "{{ users.keys() | list }}"
+
+    - name: Build pub_keys dict {username: pubkey}
+      set_fact:
+        pub_keys: >-
+          {{ pub_keys | default({}) | combine({ (item.item): (item.content | b64decode) }) }}
+      loop: "{{ user_keys.results }}"
+
+    - name: Inject related pubkeys into authorized_keys
+      authorized_key:
+        user: "{{ current_user }}"
+        key: "{{ pub_keys[related_user] }}"
+        manage_dir: no
+        state: present
+      loop: "{{ users | dict2items | subelements('value') }}"
+      vars:
+        current_user: "{{ item.0.key }}"
+        related_user: "{{ item.1 }}"
+      when: 
+        - related_user != current_user
+        - related_user in pub_keys

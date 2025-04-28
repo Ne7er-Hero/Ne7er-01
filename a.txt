@@ -1,2 +1,3 @@
-xxx,c1pa1tdt,c1pa1tdt,c1pn1tdt
-xxx,c1po1tdt,c1pa1tdt,c1po1tdt,c1pn1tdt
+- ['wcp', 'c1pa1tdt', 'c1pa1tdt', 'c1pn1tdt']
+- ['wcp', 'c1po1tdt', 'c1pa1tdt', 'c1po1tdt', 'c1pn1tdt']
+- ['wcp', 'c1pn1tdt', 'c1pa1tdt', 'c1po1tdt', 'c1pn1tdt']

@@ -36,7 +36,7 @@
 
     - name: Ensure .ssh directory exists for each user
       file:
-        path: "/home/{{ item }}/.ssh"
+        path: "/home/{{ item[0:6] }}/{{ item }}/.ssh"
         state: directory
         owner: "{{ item }}"
         group: "{{ item }}"
@@ -47,12 +47,12 @@
       become_user: "{{ item }}"
       shell: ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa <<< y
       args:
-        creates: "/home/{{ item }}/.ssh/id_rsa"
+        creates: "/home/{{ item[0:6] }}//{{ item }}/.ssh/id_rsa"
       loop: "{{ users.keys() | list }}"
 
     - name: Read all public keys into a dictionary
       slurp:
-        src: "/home/{{ item }}/.ssh/id_rsa.pub"
+        src: "/home/{{ item[0:6] }}//{{ item }}/.ssh/id_rsa.pub"
       register: user_keys
       loop: "{{ users.keys() | list }}"
 

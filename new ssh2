@@ -3,7 +3,7 @@
   become: yes
 
   vars:
-    user_info_file: "/path/to/a.txt"
+    user_info_file: "/path/to/a.txt"  # 本地控制节点上 a.txt 的路径
 
   tasks:
     - name: Copy a.txt to the target host
@@ -27,31 +27,24 @@
             | list
           }}
 
-    - name: Set users and pubkey paths
+    - name: Initialize users and pubkey_paths dictionaries
       set_fact:
-        users: >-
-          {{
-            dict(
-              user_info_list
-              | selectattr('0', 'equalto', inventory_hostname)
-              | map('extract', [1,2,3])
-              | map('community.general.dict_kv', '0', 'slice(1, None))
-              | list
-            )
-          }}
-        pubkey_paths: >-
-          {{
-            dict(
-              user_info_list
-              | selectattr('0', 'equalto', inventory_hostname)
-              | map('extract', [1,2])
-              | map('join', '/')
-              | map('regex_replace', '^(.*)$', '/home/\\1/.ssh/id_rsa.pub')
-              | zip(user_info_list | selectattr('0', 'equalto', inventory_hostname) | map('2'))
-              | map('community.general.dict_kv', '1', '0')
-              | list
-            )
-          }}
+        users: {}
+        pubkey_paths: {}
+
+    - name: Process each line of user info
+      set_fact:
+        users: "{{ users | combine({ item[1]: item[2:] }) }}"
+        pubkey_paths: "{{ pubkey_paths | combine({ item[1]: '/home/' + item[2] + '/.ssh/id_rsa.pub' }) }}"
+      loop: "{{ user_info_list }}"
+
+    - name: Debug show users structure
+      debug:
+        var: users
+
+    - name: Debug show pubkey_paths structure
+      debug:
+        var: pubkey_paths
 
     - name: Read public keys
       slurp:
@@ -63,8 +56,8 @@
       set_fact:
         pub_keys: >-
           {{
-            pub_keys | default({}) 
-            | combine({ (item.item): (item.content | b64decode) })
+            pub_keys | default({})
+            | combine({ item.item: (item.content | b64decode) })
           }}
       loop: "{{ user_pubkeys.results }}"
 

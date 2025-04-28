@@ -34,7 +34,7 @@
       set_fact:
         # Append each user's info to the dictionary incrementally
         users: "{{ users | combine({ item[1]: item[2:] }) }}"
-        pubkey_paths: "{{ pubkey_paths | combine({ item[1]: '/home/' + item[2] + '/.ssh/id_rsa.pub' }) }}"
+        pubkey_paths: "{{ pubkey_paths | combine({ item[1]: '/home/' + item[0:6] + '/' + item + '/.ssh/id_rsa.pub' }) }}"
       loop: "{{ user_info_list }}"
 
     - name: Debug show users structure

@@ -1,0 +1,83 @@
+- name: Local user mutual SSH trust based on a.txt
+  hosts: wcp
+  become: yes
+
+  vars:
+    user_info_file: "/path/to/a.txt"
+
+  tasks:
+    - name: Copy a.txt to the target host
+      copy:
+        src: "{{ user_info_file }}"
+        dest: "/tmp/a.txt"
+      when: inventory_hostname == 'wcp'
+
+    - name: Read and parse a.txt
+      slurp:
+        src: "/tmp/a.txt"
+      register: user_info_raw
+
+    - name: Set parsed user info
+      set_fact:
+        user_info_list: >-
+          {{
+            user_info_raw.content | b64decode | splitlines()
+            | map('regex_replace', ' *, *', ',')
+            | map('split', ',')
+            | list
+          }}
+
+    - name: Set users and pubkey paths
+      set_fact:
+        users: >-
+          {{
+            dict(
+              user_info_list
+              | selectattr('0', 'equalto', inventory_hostname)
+              | map('extract', [1,2,3])
+              | map('community.general.dict_kv', '0', 'slice(1, None))
+              | list
+            )
+          }}
+        pubkey_paths: >-
+          {{
+            dict(
+              user_info_list
+              | selectattr('0', 'equalto', inventory_hostname)
+              | map('extract', [1,2])
+              | map('join', '/')
+              | map('regex_replace', '^(.*)$', '/home/\\1/.ssh/id_rsa.pub')
+              | zip(user_info_list | selectattr('0', 'equalto', inventory_hostname) | map('2'))
+              | map('community.general.dict_kv', '1', '0')
+              | list
+            )
+          }}
+
+    - name: Read public keys
+      slurp:
+        src: "{{ pubkey_paths[item] }}"
+      register: user_pubkeys
+      loop: "{{ pubkey_paths.keys() | list }}"
+
+    - name: Build pub_keys dict
+      set_fact:
+        pub_keys: >-
+          {{
+            pub_keys | default({}) 
+            | combine({ (item.item): (item.content | b64decode) })
+          }}
+      loop: "{{ user_pubkeys.results }}"
+
+    - name: Inject related pubkeys
+      authorized_key:
+        user: "{{ user_info.key }}"
+        key: "{{ pub_keys[related_user] }}"
+        manage_dir: no
+        state: present
+        path: "/home/{{ user_info.key }}/{{ user_info.value.0 }}/.ssh/authorized_keys"
+      loop: "{{ users | dict2items | subelements('value', skip_missing=True) }}"
+      vars:
+        user_info: "{{ item.0 }}"
+        related_user: "{{ item.1 }}"
+      when:
+        - related_user in pub_keys

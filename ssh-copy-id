@@ -25,15 +25,17 @@
             | map('split', ',') | list
           }}
 
-    - name: Extract host-specific user list
-      set_fact:
-        host_users: >-
-          {{
-            (user_info_list 
-            | selectattr('0', 'equalto', inventory_hostname)
-            | map('slice', [1, None])
-            | first) | default([])
-          }}
+- name: Extract host-specific user list
+  set_fact:
+    host_users: >-
+      {{
+        user_info_list 
+        | selectattr("0", "==", inventory_hostname)
+        | map("lambda x: x[1:]")  # 替代slice的兼容写法
+        | flatten
+      }}
+  vars:
+    inventory_hostname: "{{ ansible_hostname }}"  # 确保主机名变量正确
 
     - name: Build users dictionary with mutual relationships
       set_fact:

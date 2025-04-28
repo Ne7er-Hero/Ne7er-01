@@ -1,14 +1,20 @@
 - name: Local user mutual SSH trust based on host in a.txt
-  hosts: all
+  hosts: wcp
   become: yes
 
   vars:
     user_info_file: "/path/to/a.txt"
 
   tasks:
-    - name: Read user info file
+    - name: Copy a.txt to the target host
+      copy:
+        src: "/path/to/a.txt"  # 这里是控制节点上的路径
+        dest: "/tmp/a.txt"     # 目标主机上保存的路径
+      when: inventory_hostname == 'wcp'  # 只在wcp主机上执行
+
+    - name: Read user info file from target host
       slurp:
-        src: "{{ user_info_file }}"
+        src: "/tmp/a.txt"  # 这里是目标主机上的路径
       register: user_info_raw
 
     - name: Parse user info lines into structured data

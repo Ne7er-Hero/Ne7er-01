@@ -73,7 +73,7 @@
       loop: "{{ users.keys() | list }}"
       loop_control:
         loop_var: user
-      with_nested:
-        - "{{ users.keys() | list }}"
-        - "{{ users.keys() | list }}"
-      when: related_user in users[user] and user != related_user
+      vars:
+        related_users: "{{ users[user] }}"
+      with_items: "{{ related_users }}"
+      when: related_user != user

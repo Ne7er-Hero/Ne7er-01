@@ -1,10 +1,9 @@
----
 - name: Local user mutual SSH trust based on host in a.txt
   hosts: all
   become: yes
 
   vars:
-    user_info_file: "/path/to/a.txt"  # 这里换成你的a.txt路径
+    user_info_file: "/path/to/a.txt"
 
   tasks:
     - name: Read user info file
@@ -16,21 +15,26 @@
       set_fact:
         user_info_list: >-
           {{
-            user_info_raw.content | b64decode | splitlines() | map('split', ',') | list
+            user_info_raw.content | b64decode | splitlines() 
+            | map('split', ',') | list
           }}
 
-    - name: Filter users for this host
+    - name: Extract host-specific user list
       set_fact:
-        users: >-
+        host_users: >-
           {{
-            dict(
-              user_info_list
-              | selectattr('0', 'equalto', inventory_hostname)
-              | map('slice', [1, None])
-              | map('first', 'last')
-              | list
-            )
+            (user_info_list 
+            | selectattr('0', 'equalto', inventory_hostname)
+            | map('slice', [1, None])
+            | first) | default([])
           }}
+
+    - name: Build users dictionary with mutual relationships
+      set_fact:
+        users: "{{ users | default({}) | combine({item: other_users}) }}"
+      loop: "{{ host_users }}"
+      vars:
+        other_users: "{{ host_users | reject('equalto', item) | list }}"
 
     - name: Debug show filtered users
       debug:
@@ -66,14 +70,14 @@
 
     - name: Inject related pubkeys into authorized_keys
       authorized_key:
-        user: "{{ user }}"
+        user: "{{ current_user }}"
         key: "{{ pub_keys[related_user] }}"
         manage_dir: no
         state: present
-      loop: "{{ users.keys() | list }}"
-      loop_control:
-        loop_var: user
+      loop: "{{ users | dict2items | subelements('value') }}"
       vars:
-        related_users: "{{ users[user] }}"
-      with_items: "{{ related_users }}"
-      when: related_user != user
+        current_user: "{{ item.0.key }}"
+        related_user: "{{ item.1 }}"
+      when: 
+        - related_user != current_user
+        - related_user in pub_keys

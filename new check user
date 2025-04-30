@@ -1,0 +1,32 @@
+---
+- name: Check specific users on mapped hosts
+  hosts: wcp
+  gather_facts: no
+  become: true
+  vars_files:
+    - user_check_map.yml
+
+  tasks:
+    - name: Get list of users for this host
+      set_fact:
+        users_to_check: "{{ user_check_map[inventory_hostname] | default([]) }}"
+
+    - name: Check if user exists
+      ansible.builtin.command: id {{ item }}
+      register: user_check_results
+      ignore_errors: yes
+      loop: "{{ users_to_check }}"
+
+    - name: Collect missing users
+      set_fact:
+        missing_users: "{{ user_check_results.results | selectattr('rc', '!=', 0) | map(attribute='item') | list }}"
+
+    - name: Show missing users only (if any)
+      debug:
+        msg: "❌ Missing users on {{ inventory_hostname }}: {{ missing_users }}"
+      when: missing_users | length > 0
+
+    - name: Show success message when all users exist
+      debug:
+        msg: "✅ All users exist on {{ inventory_hostname }}"
+      when: missing_users | length == 0

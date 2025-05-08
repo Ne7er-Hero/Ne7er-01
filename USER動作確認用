@@ -1,26 +1,52 @@
 # check_connection.yml
-- name: Check SSH connection status
+- name: Check SSH connection for all hosts
   hosts: all
   gather_facts: no
   tasks:
 
-    - name: Test connection with ping module
+    - name: Test SSH connection using ping
       ansible.builtin.ping:
       register: ping_result
       ignore_errors: true
 
-    - name: Show success message
+    - name: Set fact for connection status
+      set_fact:
+        conn_status: "{{ 'success' if ping_result is succeeded else 'failed' }}"
+
+- name: Collect results
+  hosts: localhost
+  gather_facts: no
+  vars:
+    success_hosts: []
+    failed_hosts: []
+  tasks:
+
+    - name: Gather successful hosts
+      add_host:
+        name: "{{ item }}"
+        groups: success_group
+      loop: "{{ groups['all'] }}"
+      when: hostvars[item].conn_status == 'success'
+
+    - name: Gather failed hosts
+      add_host:
+        name: "{{ item }}"
+        groups: failed_group
+      loop: "{{ groups['all'] }}"
+      when: hostvars[item].conn_status == 'failed'
+
+    - name: Show successful hosts (only if all succeeded)
       debug:
-        msg: "✅ {{ inventory_hostname }} ({{ ansible_user | default('N/A') }}) connected successfully"
-      when: ping_result is succeeded
+        msg: |
+          ✅ All connections successful:
+          {{ groups['success_group'] }}
+      when:
+        - groups['failed_group'] | length == 0
+        - groups['success_group'] | length > 0
 
-    - name: Show failure message
+    - name: Show failed hosts (only if any failed)
       debug:
-        msg: "❌ {{ inventory_hostname }} ({{ ansible_user | default('N/A') }}) failed to connect"
-      when: ping_result is failed
-
-
-
-[all]
-192.168.1.10 ansible_user=test1 ansible_ssh_pass=pass1
-192.168.1.11 ansible_user=test2 ansible_ssh_pass=pass2
+        msg: |
+          ❌ Connection failed for:
+          {{ groups['failed_group'] }}
+      when: groups['failed_group'] | length > 0

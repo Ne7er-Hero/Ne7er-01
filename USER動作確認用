@@ -1,52 +1,31 @@
 # check_connection.yml
-- name: Check SSH connection for all hosts
+- name: Check SSH connection status
   hosts: all
   gather_facts: no
   tasks:
 
-    - name: Test SSH connection using ping
+    - name: Test connection with ping module
       ansible.builtin.ping:
       register: ping_result
       ignore_errors: true
 
-    - name: Set fact for connection status
+    - name: Mark result as variable
       set_fact:
         conn_status: "{{ 'success' if ping_result is succeeded else 'failed' }}"
 
-- name: Collect results
+# 只在 localhost 上做结果汇总
+- name: Display connection results
   hosts: localhost
   gather_facts: no
-  vars:
-    success_hosts: []
-    failed_hosts: []
   tasks:
-
-    - name: Gather successful hosts
-      add_host:
-        name: "{{ item }}"
-        groups: success_group
+    - name: Print all successful connections
+      debug:
+        msg: "✅ {{ hostvars[item].inventory_hostname }} ({{ hostvars[item].ansible_user | default('N/A') }}) connected successfully"
       loop: "{{ groups['all'] }}"
       when: hostvars[item].conn_status == 'success'
 
-    - name: Gather failed hosts
-      add_host:
-        name: "{{ item }}"
-        groups: failed_group
+    - name: Print all failed connections
+      debug:
+        msg: "❌ {{ hostvars[item].inventory_hostname }} ({{ hostvars[item].ansible_user | default('N/A') }}) failed to connect"
       loop: "{{ groups['all'] }}"
       when: hostvars[item].conn_status == 'failed'
-
-    - name: Show successful hosts (only if all succeeded)
-      debug:
-        msg: |
-          ✅ All connections successful:
-          {{ groups['success_group'] }}
-      when:
-        - groups['failed_group'] | length == 0
-        - groups['success_group'] | length > 0
-
-    - name: Show failed hosts (only if any failed)
-      debug:
-        msg: |
-          ❌ Connection failed for:
-          {{ groups['failed_group'] }}
-      when: groups['failed_group'] | length > 0

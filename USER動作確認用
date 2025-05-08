@@ -13,19 +13,32 @@
       set_fact:
         conn_status: "{{ 'success' if ping_result is succeeded else 'failed' }}"
 
-# 只在 localhost 上做结果汇总
 - name: Display connection results
   hosts: localhost
   gather_facts: no
   tasks:
-    - name: Print all successful connections
-      debug:
-        msg: "✅ {{ hostvars[item].inventory_hostname }} ({{ hostvars[item].ansible_user | default('N/A') }}) connected successfully"
-      loop: "{{ groups['all'] }}"
-      when: hostvars[item].conn_status == 'success'
 
-    - name: Print all failed connections
+    - name: Set success_hosts
+      set_fact:
+        success_hosts: >-
+          {{ groups['all'] | select('match', '.*') | selectattr('conn_status', 'defined') | selectattr('conn_status', 'equalto', 'success') | list }}
+        failed_hosts: >-
+          {{ groups['all'] | select('match', '.*') | selectattr('conn_status', 'defined') | selectattr('conn_status', 'equalto', 'failed') | list }}
+
+    - name: Print successful hosts (only if all succeeded)
       debug:
-        msg: "❌ {{ hostvars[item].inventory_hostname }} ({{ hostvars[item].ansible_user | default('N/A') }}) failed to connect"
-      loop: "{{ groups['all'] }}"
-      when: hostvars[item].conn_status == 'failed'
+        msg: |
+          ✅ All hosts connected successfully:
+          {% for host in success_hosts %}
+          - {{ host }} ({{ hostvars[host].ansible_user | default('N/A') }})
+          {% endfor %}
+      when: failed_hosts | length == 0
+
+    - name: Print failed hosts (only if any failed)
+      debug:
+        msg: |
+          ❌ The following hosts failed to connect:
+          {% for host in failed_hosts %}
+          - {{ host }} ({{ hostvars[host].ansible_user | default('N/A') }})
+          {% endfor %}
+      when: failed_hosts | length > 0

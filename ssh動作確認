@@ -1,0 +1,39 @@
+- name: Verify SSH key-based login works
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - ssh_map.yml
+
+  tasks:
+    - name: Loop over each ssh pair
+      include_tasks: verify_ssh_task.yml
+      loop: "{{ ssh_pairs }}"
+      loop_control:
+        loop_var: ssh_item
+
+
+
+
+- name: Set facts from ssh pair
+  set_fact:
+    from_host: "{{ ssh_item[0] }}"
+    to_host: "{{ ssh_item[1] }}"
+    from_user: "{{ ssh_item[2] }}"
+    to_user: "{{ ssh_item[3] }}"
+
+- name: Try SSH from {{ from_user }}@{{ from_host }} to {{ to_user }}@{{ to_host }}
+  delegate_to: "{{ from_host }}"
+  become: true
+  become_user: "{{ from_user }}"
+  shell: |
+    ssh -o BatchMode=yes -o StrictHostKeyChecking=no {{ to_user }}@{{ to_host }} "echo success"
+  register: ssh_try_result
+  ignore_errors: true
+
+- name: Show result
+  debug:
+    msg: >-
+      {{ '✅ SSH from ' + from_user + '@' + from_host + ' to ' + to_user + '@' + to_host + ' succeeded'
+         if ssh_try_result.rc == 0
+         else '❌ SSH from ' + from_user + '@' + from_host + ' to ' + to_user + '@' + to_host + ' failed'
+      }}

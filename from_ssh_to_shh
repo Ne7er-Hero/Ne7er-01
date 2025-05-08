@@ -1,3 +1,9 @@
+ssh_pairs:
+  - ['wcp', 'wcp1', 'c1pa1tdt', 'c1pn1tdt'] 
+  - ['wcp', 'wcp1', 'c1po1tdt', 'c1pn1tdt'] 
+  - ['wcp', 'wcp1', 'c1pn1tdt', 'c1pa1tdt']
+
+
 - name: Setup SSH key-based authentication between users
   hosts: localhost
   gather_facts: no
@@ -5,17 +11,12 @@
     - ssh_map.yml
 
   tasks:
-    - name: Loop over all ssh pairs
+    - name: Loop over all SSH pairs
       include_tasks: ssh_setup_task.yml
       loop: "{{ ssh_pairs }}"
       loop_control:
         loop_var: ssh_item
 
-
-ssh_pairs:
-  - ['wcp', 'wcp1', 'c1pa1tdt', 'c1pn1tdt'] 
-  - ['wcp', 'wcp1', 'c1po1tdt', 'c1pn1tdt'] 
-  - ['wcp', 'wcp1', 'c1pn1tdt', 'c1pa1tdt']
 
 
 - name: Set facts from ssh pair
@@ -24,14 +25,20 @@ ssh_pairs:
     to_host: "{{ ssh_item[1] }}"
     from_user: "{{ ssh_item[2] }}"
     to_user: "{{ ssh_item[3] }}"
+    from_home: "/home/{{ ssh_item[2][:6] }}/{{ ssh_item[2] }}"
+    to_home: "/home/{{ ssh_item[3][:6] }}/{{ ssh_item[3] }}"
 
 - name: Ensure {{ from_user }} has SSH key
   delegate_to: "{{ from_host }}"
   become: true
   become_user: "{{ from_user }}"
   shell: |
-    if [ ! -f ~/.ssh/id_rsa ]; then
-      ssh-keygen -t rsa -f ~/.ssh/id_rsa -N '';
+    if [ ! -f '{{ from_home }}/.ssh/id_rsa' ]; then
+      mkdir -p '{{ from_home }}/.ssh'
+      ssh-keygen -t rsa -f '{{ from_home }}/.ssh/id_rsa' -N ''
+      chmod 700 '{{ from_home }}/.ssh'
+      chmod 600 '{{ from_home }}/.ssh/id_rsa'
+      chmod 644 '{{ from_home }}/.ssh/id_rsa.pub'
     fi
   args:
     executable: /bin/bash
@@ -41,7 +48,7 @@ ssh_pairs:
   become: true
   become_user: "{{ from_user }}"
   slurp:
-    src: ~/.ssh/id_rsa.pub
+    src: "{{ from_home }}/.ssh/id_rsa.pub"
   register: pubkey_data
 
 - name: Install pubkey into {{ to_user }}@{{ to_host }}

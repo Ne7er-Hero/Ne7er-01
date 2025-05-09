@@ -1,0 +1,13 @@
+---
+- name: Run user creation commands
+  hosts: your_target_hosts
+  become: yes
+  tasks:
+    - name: Create user1
+      shell: useradd -u 20001 -g 30006 -m user1
+
+    - name: Create user2
+      shell: useradd -u 20002 -g 30006 -m user2
+
+    - name: Create user3
+      shell: useradd -u 20003 -g 30006 -m user3

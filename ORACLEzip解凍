@@ -1,0 +1,60 @@
+---
+- name: Upload, extract zip files, and set up /app/oracle as oracle user
+  hosts: your_target_hosts
+  become: yes
+  vars:
+    target_user: oracle
+    target_dir: /app/oracle
+    archive1_local: /sb/works/ansible/scripts/a1.zip
+    archive2_local: /sb/works/ansible/scripts/a2.zip
+    archive1_remote: "{{ target_dir }}/a1.zip"
+    archive2_remote: "{{ target_dir }}/a2.zip"
+
+  tasks:
+    - name: Ensure target directory exists with correct ownership
+      file:
+        path: "{{ target_dir }}"
+        state: directory
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
+        mode: '0755'
+
+    - name: Upload a1.zip to remote host
+      copy:
+        src: "{{ archive1_local }}"
+        dest: "{{ archive1_remote }}"
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
+        mode: '0644'
+
+    - name: Upload a2.zip to remote host
+      copy:
+        src: "{{ archive2_local }}"
+        dest: "{{ archive2_remote }}"
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
+        mode: '0644'
+
+    - name: Extract a1.zip to target directory as oracle
+      become_user: "{{ target_user }}"
+      ansible.builtin.unarchive:
+        src: "{{ archive1_remote }}"
+        dest: "{{ target_dir }}"
+        remote_src: yes
+
+    - name: Extract a2.zip to target directory as oracle
+      become_user: "{{ target_user }}"
+      ansible.builtin.unarchive:
+        src: "{{ archive2_remote }}"
+        dest: "{{ target_dir }}"
+        remote_src: yes
+
+    - name: Create 'bin' and 'lib' directories under /app/oracle as oracle
+      become_user: "{{ target_user }}"
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - "{{ target_dir }}/bin"
+        - "{{ target_dir }}/lib"

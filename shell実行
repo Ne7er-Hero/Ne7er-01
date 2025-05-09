@@ -2,6 +2,8 @@
 - name: Run user creation commands
   hosts: your_target_hosts
   become: yes
+  vars:
+    oracle_password_plain: "!Or@cle$99!"
   tasks:
     - name: Create user1
       shell: useradd -u 20001 -g 30006 -m user1
@@ -11,3 +13,8 @@
 
     - name: Create user3
       shell: useradd -u 20003 -g 30006 -m user3
+
+    - name: Set password for oracle
+      user:
+        name: oracle
+        password: "{{ oracle_password_plain | password_hash('sha512') }}"

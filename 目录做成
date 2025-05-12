@@ -1,0 +1,22 @@
+---
+- name: 创建3个目录（逐个创建）
+  hosts: all
+  become: yes
+  tasks:
+    - name: 创建目录 /path/to/dir1
+      file:
+        path: /path/to/dir1
+        state: directory
+        mode: '0755'
+
+    - name: 创建目录 /path/to/dir2
+      file:
+        path: /path/to/dir2
+        state: directory
+        mode: '0755'
+
+    - name: 创建目录 /path/to/dir3
+      file:
+        path: /path/to/dir3
+        state: directory
+        mode: '0755'

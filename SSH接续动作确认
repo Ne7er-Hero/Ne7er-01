@@ -1,12 +1,12 @@
 ---
-- name: 确认 ssh_pairs 中所有 SSH 接续是否成功
+- name: ssh_pairs に定義された全てのSSH接続確認
   hosts: localhost
   gather_facts: no
   vars_files:
     - ssh_pairs.yml
 
   tasks:
-    - name: 尝试从每组 from_user@from_host 到 to_user@to_host 的 SSH 接续
+    - name: 各 from_user@from_host から to_user@to_host へのSSH接続を試行
       ansible.builtin.delegate_to: "{{ item[0] }}"
       ansible.builtin.shell: >
         ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=5 {{ item[3] }}@{{ item[1] }} "echo success"
@@ -18,10 +18,10 @@
         label: "{{ item[2] }}@{{ item[0] }} → {{ item[3] }}@{{ item[1] }}"
       ignore_errors: true
 
-    - name: 显示 SSH 接续结果
+    - name: SSH接続結果を表示
       ansible.builtin.debug:
         msg: >
-          SSH 接续 {{ item.item[2] }}@{{ item.item[0] }} → {{ item.item[3] }}@{{ item.item[1] }} 的结果：
-          状态={{ '成功' if item.rc == 0 else '失败' }}，
-          输出={{ item.stdout | default('无') }}
+          SSH接続 {{ item.item[2] }}@{{ item.item[0] }} → {{ item.item[3] }}@{{ item.item[1] }} の結果：
+          状態＝{{ '成功' if item.rc == 0 else '失敗' }}、
+          出力＝{{ item.stdout | default('なし') }}
       loop: "{{ ssh_result.results }}"

@@ -1,0 +1,41 @@
+---
+- name: Loadstar RPM パッケージをインストール
+  hosts: all
+  become: yes
+  tasks:
+    - name: /usr/local/src ディレクトリが存在することを確認
+      file:
+        path: /usr/local/src
+        state: directory
+        mode: '0755'
+
+    - name: RPM ファイルを対象サーバーへコピー
+      copy:
+        src: /sb/loadstar.rpm
+        dest: /usr/local/src/loadstar.rpm
+        mode: '0644'
+
+    - name: loadstar が既にインストールされているか確認
+      shell: rpm -q loadstar
+      register: rpm_check
+      ignore_errors: yes
+
+    - name: loadstar をインストール（未インストールの場合）
+      command: rpm -ivh /usr/local/src/loadstar.rpm
+      when: rpm_check.rc != 0
+
+    - name: jmcs-agent サービスを起動
+      systemd:
+        name: jmcs-agent
+        state: started
+        enabled: yes
+
+    - name: jmcs-agent サービスのステータスを確認
+      shell: systemctl is-active jmcs-agent
+      register: jmcs_status
+      changed_when: false
+      failed_when: jmcs_status.stdout != "active"
+
+    - name: 起動成功メッセージを表示
+      debug:
+        msg: "✅ jmcs-agent の起動に成功しました。ステータス：{{ jmcs_status.stdout }}"

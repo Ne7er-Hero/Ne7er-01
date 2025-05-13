@@ -1,0 +1,30 @@
+---
+- name: Expect モジュールのテスト（a.sh を実行して 1 と yes を入力）
+  hosts: wcp_2
+  become: true
+  gather_facts: false
+
+  collections:
+    - community.general  # 明示的に expect モジュールを含む
+
+  tasks:
+    - name: a.sh を /usr/local/bin にコピー
+      copy:
+        src: /sb/works/ansible/scripts/a.sh
+        dest: /usr/local/bin/a.sh
+        mode: '0755'
+
+    - name: a.sh を expect で実行
+      expect:
+        command: /usr/local/bin/a.sh
+        responses:
+          'Please enter a number:': '1'
+          'Are you sure\? \(yes/no\)': 'yes'
+      environment:
+        LANG: ja_JP.UTF-8
+        LC_ALL: ja_JP.UTF-8
+
+
+
+Please enter a number: 
+Are you sure? (yes/no):

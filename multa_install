@@ -1,0 +1,33 @@
+---
+- name: 対話式スクリプトをexpectで実行する
+  hosts: wcp_2
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: ファイルを /usr/local/bin にコピーする（file_agent_rhel_64_1.16.4.tar.gz）
+      copy:
+        src: /sb/works/ansible/scripts/file_agent_rhel_64_1.16.4.tar.gz
+        dest: /usr/local/bin/file_agent_rhel_64_1.16.4.tar.gz
+        mode: '0644'
+
+    - name: ファイルを /usr/local/bin にコピーする（file_agent_install_rhel.sh）
+      copy:
+        src: /sb/works/ansible/scripts/file_agent_install_rhel.sh
+        dest: /usr/local/bin/file_agent_install_rhel.sh
+        mode: '0755'
+
+    - name: file_agent_install_rhel.sh を expect で実行し、自動入力を行う
+      community.general.expect:
+        command: /usr/local/bin/file_agent_install_rhel.sh
+        responses:
+          'Enter filename:': 'file_agent_rhel_64_1.16.4.tar.gz'
+          'Enter path:': '/sb/app/multa'
+          'Enter number:': '30003'
+          'Enter username:': 'multa'
+          'Enter service name:': 'multad'
+          'Enter option \[1-3\]:': '1'
+          'Enter sub-option \[1-2\]:': '1'
+          'Are you sure\? \(yes/no\)': 'yes'
+      vars:
+        ansible_python_interpreter: /usr/bin/python3  # Python3 を使用する

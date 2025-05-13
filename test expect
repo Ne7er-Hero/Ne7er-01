@@ -26,5 +26,17 @@
 
 
 
-Please enter a number: 
-Are you sure? (yes/no):
+#!/bin/bash
+
+# 第一步：输入数字
+read -p "Please enter a number: " number
+echo "You entered: $number"
+
+# 第二步：确认
+read -p "Are you sure? (yes/no): " confirmation
+if [ "$confirmation" == "yes" ]; then
+  echo "Confirmed. Proceeding..."
+else
+  echo "Cancelled."
+fi
+

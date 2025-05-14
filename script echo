@@ -1,10 +1,30 @@
-- name: Run script with echo as stdin
-  shell: |
-    echo -e "file_agent_rhel_64_1.16.4.tar.gz\n/sb/app/multa\n30003\nmulta\nmultad\n1\n1\nyes\n" | /usr/local/bin/file_agent_install_rhel.sh
-  environment:
-    TERM: dumb
-    LANG: C
-  register: result
+---
+- name: file_agent_install_rhel.sh を自動入力付きで実行する
+  hosts: wcp_2
+  become: true
+  gather_facts: false
 
-- debug:
-    var: result.stdout_lines
+  tasks:
+    - name: インストールファイルをコピー（file_agent_rhel_64_1.16.4.tar.gz）
+      copy:
+        src: /sb/works/ansible/scripts/file_agent_rhel_64_1.16.4.tar.gz
+        dest: /usr/local/bin/file_agent_rhel_64_1.16.4.tar.gz
+        mode: '0644'
+
+    - name: インストールスクリプトをコピー（file_agent_install_rhel.sh）
+      copy:
+        src: /sb/works/ansible/scripts/file_agent_install_rhel.sh
+        dest: /usr/local/bin/file_agent_install_rhel.sh
+        mode: '0755'
+
+    - name: echo で対話入力をシミュレートしてスクリプトを実行
+      shell: |
+        echo -e "file_agent_rhel_64_1.16.4.tar.gz\n/sb/app/multa\n30003\nmulta\nmultad\n1\n1\nyes\n" | /usr/local/bin/file_agent_install_rhel.sh
+      environment:
+        TERM: dumb
+        LANG: C
+      register: result
+
+    - name: スクリプト実行結果を表示
+      debug:
+        var: result.stdout_lines

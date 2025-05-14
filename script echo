@@ -1,0 +1,10 @@
+- name: Run script with echo as stdin
+  shell: |
+    echo -e "file_agent_rhel_64_1.16.4.tar.gz\n/sb/app/multa\n30003\nmulta\nmultad\n1\n1\nyes\n" | /usr/local/bin/file_agent_install_rhel.sh
+  environment:
+    TERM: dumb
+    LANG: C
+  register: result
+
+- debug:
+    var: result.stdout_lines

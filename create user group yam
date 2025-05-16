@@ -39,5 +39,9 @@
 
     - name: Run both scripts with fixed argument
       shell: |
-        {{ script1 }} {{ fixed_arg }}
-        {{ script2 }} {{ fixed_arg }}
+        ./create_groups.sh {{ fixed_arg }} && \
+        ./create_users.sh {{ fixed_arg }}
+      args:
+        chdir: "{{ extract_path }}"
+
+

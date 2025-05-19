@@ -1,3 +1,6 @@
+ansible-playbook your_playbook.yml -e @ssh_map.yml -e "target_pairs={{ ssh_pairs2 }}" --limit localhost
+
+
 ssh_map.yml
 ssh_pairs:
   - ['wcp', 'wcp1', 'c1pa1tdt', 'c1pn1tdt'] 

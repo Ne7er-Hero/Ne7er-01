@@ -1,7 +1,9 @@
+ssh_map.yml
 ssh_pairs:
   - ['wcp', 'wcp1', 'c1pa1tdt', 'c1pn1tdt'] 
   - ['wcp', 'wcp1', 'c1po1tdt', 'c1pn1tdt'] 
   - ['wcp', 'wcp1', 'c1pn1tdt', 'c1pa1tdt']
+
 
 
 - name: Setup SSH key-based authentication between users
@@ -18,7 +20,7 @@ ssh_pairs:
         loop_var: ssh_item
 
 
-
+ssh_setup_task.yml
 - name: Set facts from ssh pair
   set_fact:
     from_host: "{{ ssh_item[0] }}"

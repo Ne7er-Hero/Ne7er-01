@@ -1,0 +1,31 @@
+---
+- name: /sb/works と /sb/log を作成し、適切な所有権とパーミッションを設定する
+  hosts: all
+  become: yes
+
+  vars:
+    base_dir: /sb
+    sub_dirs:
+      - works
+      - log
+    sb_user: sbuser
+    sb_group: sbgrp
+    dir_mode: "0750"
+
+  tasks:
+    - name: /sb ディレクトリが存在することを確認する
+      file:
+        path: "{{ base_dir }}"
+        state: directory
+        owner: "{{ sb_user }}"
+        group: "{{ sb_group }}"
+        mode: "{{ dir_mode }}"
+
+    - name: サブディレクトリを作成し、所有者とパーミッションを設定する
+      file:
+        path: "{{ base_dir }}/{{ item }}"
+        state: directory
+        owner: "{{ sb_user }}"
+        group: "{{ sb_group }}"
+        mode: "{{ dir_mode }}"
+      loop: "{{ sub_dirs }}"

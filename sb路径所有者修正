@@ -1,15 +1,13 @@
 ---
-- name: /sb/works と /sb/log を作成し、適切な所有権とパーミッションを設定する
+- name: /sb/works と /sb/log を個別に作成し、それぞれ異なるグループを設定する
   hosts: all
   become: yes
 
   vars:
     base_dir: /sb
-    sub_dirs:
-      - works
-      - log
     sb_user: sbuser
-    sb_group: sbgrp
+    works_group: sbgrp1
+    log_group: sbgrp2
     dir_mode: "0750"
 
   tasks:
@@ -18,14 +16,21 @@
         path: "{{ base_dir }}"
         state: directory
         owner: "{{ sb_user }}"
-        group: "{{ sb_group }}"
+        group: "{{ works_group }}"  # 基本ディレクトリのグループ（必要に応じて調整）
         mode: "{{ dir_mode }}"
 
-    - name: サブディレクトリを作成し、所有者とパーミッションを設定する
+    - name: /sb/works ディレクトリを作成し、グループを {{ works_group }} に設定する
       file:
-        path: "{{ base_dir }}/{{ item }}"
+        path: "{{ base_dir }}/works"
         state: directory
         owner: "{{ sb_user }}"
-        group: "{{ sb_group }}"
+        group: "{{ works_group }}"
         mode: "{{ dir_mode }}"
-      loop: "{{ sub_dirs }}"
+
+    - name: /sb/log ディレクトリを作成し、グループを {{ log_group }} に設定する
+      file:
+        path: "{{ base_dir }}/log"
+        state: directory
+        owner: "{{ sb_user }}"
+        group: "{{ log_group }}"
+        mode: "{{ dir_mode }}"

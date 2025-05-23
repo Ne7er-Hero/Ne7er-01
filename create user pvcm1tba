@@ -1,0 +1,45 @@
+---
+- name: ユーザー作成と権限設定
+  hosts: all
+  become: true
+  vars_files:
+    - group_vars.yml
+
+  vars:
+    main_group: pvcm1t
+    username: pvcm1tba
+    home_dir: /home/{{ main_group }}/{{ username }}
+    extra_groups: "{{ lookup('vars', group_key) }}"
+
+  tasks:
+    - name: メイングループ {{ main_group }} を作成する
+      group:
+        name: "{{ main_group }}"
+        state: present
+
+    - name: 追加グループが存在することを確認する
+      group:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ extra_groups }}"
+
+    - name: ユーザー {{ username }} を作成する
+      user:
+        name: "{{ username }}"
+        uid: 1001
+        group: "{{ main_group }}"
+        gid: 1003
+        groups: "{{ extra_groups | join(',') }}"
+        home: "{{ home_dir }}"
+        comment: "OBJSTR Transfer"
+        shell: /bin/bash
+        create_home: yes
+        state: present
+
+    - name: ホームディレクトリが存在し、適切な権限を持っていることを確認する
+      file:
+        path: "{{ home_dir }}"
+        state: directory
+        owner: "{{ username }}"
+        group: "{{ main_group }}"
+        mode: '0755'

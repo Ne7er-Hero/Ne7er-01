@@ -1,0 +1,19 @@
+---
+- name: Delete 3 specific zip files from /app/oracle without using loop
+  hosts: your_target_hosts
+  become: yes
+  tasks:
+    - name: Delete file1.zip
+      file:
+        path: /app/oracle/file1.zip
+        state: absent
+
+    - name: Delete file2.zip
+      file:
+        path: /app/oracle/file2.zip
+        state: absent
+
+    - name: Delete file3.zip
+      file:
+        path: /app/oracle/file3.zip
+        state: absent

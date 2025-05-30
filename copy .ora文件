@@ -27,3 +27,9 @@
         owner: oracle
         group: oinstall
         mode: '0644'
+
+
+
+
+
+ansible-playbook your_playbook.yml --extra-vars "env_name=SBM"

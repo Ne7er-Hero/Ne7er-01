@@ -1,0 +1,29 @@
+---
+- name: Oracleネットワークファイルをリモートホストにコピーする
+  hosts: your_target_hosts
+  become: true
+  vars:
+    base_dir: /sb/works/ansible/scripts
+
+  tasks:
+    - name: コピー先ディレクトリが存在することを確認する
+      file:
+        path: /app/oracle/instantclient_23_7/network/admin/
+        state: directory
+        mode: '0755'
+
+    - name: tnsnames.oraをリモートホストにコピーする
+      copy:
+        src: "{{ base_dir }}/{{ env_name }}/tnsnames.ora"
+        dest: /app/oracle/instantclient_23_7/network/admin/tnsnames.ora
+        owner: oracle
+        group: oinstall
+        mode: '0644'
+
+    - name: sqlet.oraをリモートホストにコピーする
+      copy:
+        src: "{{ base_dir }}/{{ env_name }}/sqlet.ora"
+        dest: /app/oracle/instantclient_23_7/network/admin/sqlet.ora
+        owner: oracle
+        group: oinstall
+        mode: '0644'

@@ -1,0 +1,17 @@
+---
+- name: 特定のファイルをbinディレクトリに移動する
+  hosts: your_target_hosts
+  become: true
+  tasks:
+    - name: binディレクトリが存在することを確認する
+      file:
+        path: /app/oracle/instantclient_23_7/bin
+        state: directory
+        mode: '0755'
+
+    - name: 特定のファイルをbinに移動する
+      command: mv /app/oracle/instantclient_23_7/{{ item }} /app/oracle/instantclient_23_7/bin/
+      with_items:
+        - sqlplus
+        - tnsping
+        - other_file_you_want_to_move

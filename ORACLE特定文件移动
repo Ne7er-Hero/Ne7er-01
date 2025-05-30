@@ -15,3 +15,8 @@
         - sqlplus
         - tnsping
         - other_file_you_want_to_move
+    - name: jdbcディレクトリ内にlibへのシンボリックリンクを作成する
+      file:
+        src: /app/oracle/instantclient_23_7/bin
+        dest: /app/oracle/instantclient_23_7/jdbc/lib
+        state: link

@@ -20,6 +20,12 @@
         group: oinstall
         mode: '0644'
 
+    - name: sqlet.oraの存在を確認する（Ansibleサーバ側）
+      stat:
+        path: "{{ base_dir }}/{{ env_name }}/sqlet.ora"
+      delegate_to: localhost
+      register: sqlet_ora_status
+
     - name: sqlet.oraをリモートホストにコピーする
       copy:
         src: "{{ base_dir }}/{{ env_name }}/sqlet.ora"

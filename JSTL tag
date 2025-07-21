@@ -25,3 +25,14 @@
 
 
 <button type="submit" id="btn_reflection" name="method" value="reflect" class="btn_size_emphasis" onclick="return reflection();">反映</button>
+
+
+<s:select title="処理中状態" list="#procList" value="procValue" name="sbscrSrvc[%{#status1.index}].selectedProcValue" />
+<select title="処理中状態"
+        name="sbscrSrvc[${status1.index}].selectedProcValue">
+  <c:forEach var="item" items="${procList}">
+    <option value="${item}" <c:if test="${item == procValue}">selected</c:if>>
+      ${item}
+    </option>
+  </c:forEach>
+</select>

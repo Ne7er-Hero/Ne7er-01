@@ -17,3 +17,11 @@
 
 
 <form action="${pageContext.request.contextPath}/onclickSearch" method="post" name="onclickSearchForm" onsubmit="return doSubmit()">
+
+
+
+<input type="text"
+       name="searchMsnNbr"
+       id="searchMsnNbr"
+       value="${searchMsnNbr}"
+       onkeypress="return (this.value.length < 16) && keydownAlphabetNumber(event)" />

@@ -36,3 +36,11 @@
     </option>
   </c:forEach>
 </select>
+<select title="処理中状態"
+        name="sbscrSrvc[${status1.index}].selectedProcValue">
+  <c:forEach var="entry" items="${procList}">
+    <option value="${entry.key}" <c:if test="${entry.key == procValue}">selected</c:if>>
+      ${entry.value}
+    </option>
+  </c:forEach>
+</select>

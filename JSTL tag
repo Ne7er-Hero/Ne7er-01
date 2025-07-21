@@ -20,8 +20,4 @@
 
 
 
-<input type="text"
-       name="searchMsnNbr"
-       id="searchMsnNbr"
-       value="${searchMsnNbr}"
-       onkeypress="return (this.value.length < 16) && keydownAlphabetNumber(event)" />
+<input type="text" name="searchMsnNbr" id="searchMsnNbr" value="${searchMsnNbr}" onkeypress="return (this.value.length < 16) && keydownAlphabetNumber(event)" />

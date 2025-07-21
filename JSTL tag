@@ -63,3 +63,14 @@
     <c:out value="${entry.value}" escapeXml="false" />
   </label>
 </c:forEach>
+
+
+
+<package name="errsbscr" namespace="/errsbscr" extends="struts-default">
+  <action name="search" class="...ErrSbscrAction" method="search">
+    <result name="success">/WEB-INF/js/errSbscr/ErrorDataMantenance.jsp</result>
+  </action>
+</package>
+
+<form action="${pageContext.request.contextPath}/errsbscr/maintenance" method="post" name="onclickSearchForm" onsubmit="return doSubmit()">
+

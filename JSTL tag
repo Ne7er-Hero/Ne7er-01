@@ -21,3 +21,7 @@
 
 
 <input type="text" name="searchMsnNbr" id="searchMsnNbr" value="${searchMsnNbr}" onkeypress="return (this.value.length < 16) && keydownAlphabetNumber(event)" />
+
+
+
+<button type="submit" id="btn_reflection" name="method" value="reflect" class="btn_size_emphasis" onclick="return reflection();">反映</button>

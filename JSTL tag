@@ -44,3 +44,22 @@
     </option>
   </c:forEach>
 </select>
+
+
+<%
+  Map<String, String> radioOptions = new LinkedHashMap<>();
+  radioOptions.put("0", "無し");
+  radioOptions.put("1", "更新&nbsp;");
+  request.setAttribute("optMap", radioOptions);
+%>
+
+<c:forEach var="entry" items="${optMap}">
+  <label>
+    <input type="radio"
+           name="sbscrSrvc[${status1.index}].optType"
+           value="${entry.key}"
+           <c:if test="${entry.key == '0'}">checked</c:if>
+           onkeypress="return handleKeyPress();" />
+    <c:out value="${entry.value}" escapeXml="false" />
+  </label>
+</c:forEach>

@@ -73,4 +73,6 @@
 </package>
 
 <form action="${pageContext.request.contextPath}/errsbscr/maintenance" method="post" name="onclickSearchForm" onsubmit="return doSubmit()">
+<form action="<%= request.getContextPath() %>/errsbscr/maintenance" method="post" name="onclickSearchForm" onsubmit="return doSubmit()">
+
 

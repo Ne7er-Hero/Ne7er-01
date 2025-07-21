@@ -1,2 +1,16 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+
+
+<s:form>	自动生成 <form> 表单结构
+<s:textfield>	带 label 的文本框
+<s:password>	带 label 的密码输入框
+<s:textarea>	带 label 的多行文本框
+<s:checkbox>	带 label 的 checkbox
+<s:checkboxlist>	checkbox 列表
+<s:radio>	单选按钮组
+<s:select>	下拉列表框
+<s:submit>	提交按钮（可用主题渲染）
+<s:reset>	重置按钮
+<s:fielderror>	显示字段错误（主题控制样式）

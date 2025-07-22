@@ -99,3 +99,6 @@ radio修正
          onkeypress="return handleKeyPress();">
   更新&nbsp;
 </label>
+
+
+<constant name="struts.allowlist.classes" value="pv.sw.ws.waop.dto.model"/>

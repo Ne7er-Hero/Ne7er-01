@@ -76,3 +76,7 @@
 <form action="<%= request.getContextPath() %>/errsbscr/maintenance" method="post" name="onclickSearchForm" onsubmit="return doSubmit()">
 
 
+<select title="サービス状態" name="sbscrSrvc[${status1.index}].selectedSrvcStatValue">
+  <option value="1:サービス中" <c:if test="${srvcstatValue == '1:サービス中'}">selected</c:if>>サービス中</option>
+  <option value="9:解約" <c:if test="${srvcstatValue == '9:解約'}">selected</c:if>>解約</option>
+</select>

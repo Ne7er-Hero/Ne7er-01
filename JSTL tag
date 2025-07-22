@@ -1,7 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-
+list="#{'1:サービス中':'1:サービス中','9:解約':'9:解約'}" 
 
 <s:form>	自动生成 <form> 表单结构
 <s:textfield>	带 label 的文本框
@@ -80,3 +80,23 @@
   <option value="1:サービス中" <c:if test="${srvcstatValue == '1:サービス中'}">selected</c:if>>サービス中</option>
   <option value="9:解約" <c:if test="${srvcstatValue == '9:解約'}">selected</c:if>>解約</option>
 </select>
+
+
+
+radio修正
+<c:set var="optTypeValue" value="${sbscrSrvc[status1.index].optType}" />
+
+<label>
+  <input type="radio" name="sbscrSrvc[${status1.index}].optType" value="0"
+         <c:if test="${optTypeValue == '0'}">checked</c:if>
+         onkeypress="return handleKeyPress();">
+  無し
+</label>
+
+<label>
+  <input type="radio" name="sbscrSrvc[${status1.index}].optType" value="1"
+         <c:if test="${optTypeValue == '1'}">checked</c:if>
+         onkeypress="return handleKeyPress();">
+  更新&nbsp;
+</label>
+

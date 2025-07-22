@@ -88,15 +88,14 @@ radio修正
 
 <label>
   <input type="radio" name="sbscrSrvc[${status1.index}].optType" value="0"
-         <c:if test="${optTypeValue == '0'}">checked</c:if>
+         ${optTypeValue == '0' ? 'checked' : ''}
          onkeypress="return handleKeyPress();">
   無し
 </label>
 
 <label>
   <input type="radio" name="sbscrSrvc[${status1.index}].optType" value="1"
-         <c:if test="${optTypeValue == '1'}">checked</c:if>
+         ${optTypeValue == '1' ? 'checked' : ''}
          onkeypress="return handleKeyPress();">
   更新&nbsp;
 </label>
-

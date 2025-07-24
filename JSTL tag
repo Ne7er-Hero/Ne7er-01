@@ -102,3 +102,33 @@ radio修正
 
 
 <constant name="struts.allowlist.classes" value="pv.sw.ws.waop.dto.model"/>
+
+
+
+form name="onclickSearchForm" method="post" action="/errsbscr/maintenance" onsubmit="return doSubmit();">
+  <input type="text" name="searchMsnNbr" id="searchMsnNbr" />
+  <input type="submit" value="检索" id="btn_search" onclick="return searchConditionCheck();" />
+</form>
+
+<div id="debugArea" style="border:1px solid gray; padding:10px; margin-top:20px;">
+  デバッグ出力：
+  <pre id="debugLog"></pre>
+</div>
+
+<script>
+  let submitted = false;
+
+  function doSubmit() {
+    const msnValue = document.getElementById("searchMsnNbr").value;
+    const debugText = "doSubmit called\nsubmitted = " + submitted + "\nsearchMsnNbr = " + msnValue;
+
+    // 显示在画面上
+    document.getElementById("debugLog").innerText = debugText;
+
+    if (!submitted) {
+      submitted = true;
+      return true;
+    }
+    return false;
+  }
+</script>

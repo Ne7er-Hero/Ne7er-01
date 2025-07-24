@@ -142,3 +142,15 @@ form name="onclickSearchForm" method="post" action="/errsbscr/maintenance" onsub
   <button type="submit" onclick="document.getElementById('methodField').value='search'">検索</button>
   <button type="submit" onclick="document.getElementById('methodField').value='reflect'">反映</button>
 </form>
+
+
+
+<form action="${pageContext.request.contextPath}/errsbscr/maintenance" method="post" name="onclickSearchForm">
+  <input type="hidden" name="method" value="init" id="methodField" />
+
+  <input type="text" name="searchMsnNbr" />
+
+  <input type="submit" value="検索" onclick="document.getElementById('methodField').value='search';" />
+  <input type="submit" value="反映" onclick="document.getElementById('methodField').value='reflect';" />
+</form>
+

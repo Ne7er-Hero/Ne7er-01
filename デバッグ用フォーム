@@ -1,0 +1,49 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>デバッグ用フォーム</title>
+</head>
+<body>
+  <form name="onclickSearchForm" method="post" action="/errsbscr/maintenance" onsubmit="return doSubmit();">
+    <label>MSN番号: </label>
+    <input type="text" name="searchMsnNbr" id="searchMsnNbr" />
+    <input type="submit" value="検 索" id="btn_search" onclick="return searchConditionCheck();" />
+  </form>
+
+  <hr>
+  <div id="debugArea" style="border:1px solid gray; padding:10px; margin-top:20px;">
+    <strong>デバッグ出力：</strong>
+    <pre id="debugLog">（ここにログが出ます）</pre>
+  </div>
+
+  <script>
+    let submitted = false;
+
+    function doSubmit() {
+      const msnInput = document.getElementById("searchMsnNbr");
+      const debugArea = document.getElementById("debugLog");
+
+      if (!msnInput || !debugArea) {
+        alert("searchMsnNbr または debugLog 要素が見つかりません");
+        return false;
+      }
+
+      const msnValue = msnInput.value;
+      const debugText = "doSubmit called\nsubmitted = " + submitted + "\nsearchMsnNbr = " + msnValue;
+
+      debugArea.innerText = debugText;
+
+      if (!submitted) {
+        submitted = true;
+        return true;
+      }
+      return false;
+    }
+
+    // 仮の validation 関数（return true にしておく）
+    function searchConditionCheck() {
+      return true;
+    }
+  </script>
+</body>
+</html>

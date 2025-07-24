@@ -1,49 +1,94 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>デバッグ用フォーム</title>
+  <title>フォーム送信テスト</title>
 </head>
 <body>
-  <form name="onclickSearchForm" method="post" action="/errsbscr/maintenance" onsubmit="return doSubmit();">
-    <label>MSN番号: </label>
-    <input type="text" name="searchMsnNbr" id="searchMsnNbr" />
-    <input type="submit" value="検 索" id="btn_search" onclick="return searchConditionCheck();" />
-  </form>
 
-  <hr>
-  <div id="debugArea" style="border:1px solid gray; padding:10px; margin-top:20px;">
-    <strong>デバッグ出力：</strong>
-    <pre id="debugLog">（ここにログが出ます）</pre>
-  </div>
+<form name="onclickSearchForm" method="post" action="/errsbscr/maintenance" onsubmit="return doSubmit();">
+  <label>MSN番号：</label>
+  <input type="text" name="searchMsnNbr" id="searchMsnNbr" />
+  <br/><br/>
+  <input type="submit" value="検 索" id="btn_search" onclick="return searchConditionCheck();" />
+</form>
 
-  <script>
-    let submitted = false;
+<!-- ここにデバッグ情報を表示 -->
+<div id="debugArea" style="border:1px solid gray; padding:10px; margin-top:20px;">
+  <strong>デバッグ出力：</strong>
+  <pre id="debugLog"></pre>
+</div>
 
-    function doSubmit() {
-      const msnInput = document.getElementById("searchMsnNbr");
-      const debugArea = document.getElementById("debugLog");
+<script type="text/javascript">
+  let submitted = false;
 
-      if (!msnInput || !debugArea) {
-        alert("searchMsnNbr または debugLog 要素が見つかりません");
-        return false;
-      }
+  function doSubmit() {
+    const msnValue = document.getElementById("searchMsnNbr").value;
+    const debugText = "doSubmit called\nsubmitted = " + submitted + "\nsearchMsnNbr = " + msnValue;
 
-      const msnValue = msnInput.value;
-      const debugText = "doSubmit called\nsubmitted = " + submitted + "\nsearchMsnNbr = " + msnValue;
+    // デバッグエリアに表示
+    document.getElementById("debugLog").innerText = debugText;
 
-      debugArea.innerText = debugText;
-
-      if (!submitted) {
-        submitted = true;
-        return true;
-      }
-      return false;
-    }
-
-    // 仮の validation 関数（return true にしておく）
-    function searchConditionCheck() {
+    if (!submitted) {
+      submitted = true;
       return true;
     }
-  </script>
+    return false;
+  }
+
+  function searchConditionCheck() {
+    // ここにチェック処理を入れてもよい
+    return true;
+  }
+</script>
+
+</body>
+</html>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>フォーム送信テスト</title>
+</head>
+<body>
+
+<form name="onclickSearchForm" method="post" action="/errsbscr/maintenance" onsubmit="return doSubmit();">
+  <label>MSN番号：</label>
+  <input type="text" name="searchMsnNbr" id="searchMsnNbr" />
+  <br/><br/>
+  <input type="submit" value="検 索" id="btn_search" onclick="return searchConditionCheck();" />
+</form>
+
+<!-- ここにデバッグ情報を表示 -->
+<div id="debugArea" style="border:1px solid gray; padding:10px; margin-top:20px;">
+  <strong>デバッグ出力：</strong>
+  <pre id="debugLog"></pre>
+</div>
+
+<script type="text/javascript">
+  let submitted = false;
+
+  function doSubmit() {
+    const msnValue = document.getElementById("searchMsnNbr").value;
+    const debugText = "doSubmit called\nsubmitted = " + submitted + "\nsearchMsnNbr = " + msnValue;
+
+    // デバッグエリアに表示
+    document.getElementById("debugLog").innerText = debugText;
+
+    if (!submitted) {
+      submitted = true;
+      return true;
+    }
+    return false;
+  }
+
+  function searchConditionCheck() {
+    // ここにチェック処理を入れてもよい
+    return true;
+  }
+</script>
+
 </body>
 </html>

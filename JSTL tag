@@ -154,3 +154,9 @@ form name="onclickSearchForm" method="post" action="/errsbscr/maintenance" onsub
   <input type="submit" value="反映" onclick="document.getElementById('methodField').value='reflect';" />
 </form>
 
+
+<action name="maintenance" class="your.package.YourActionClass" method="init">
+    <interceptor-ref name="paramsPrepareParamsStack" />
+    <result name="success">/WEB-INF/pages/maintenance.jsp</result>
+</action>
+

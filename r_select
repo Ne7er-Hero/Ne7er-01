@@ -1,0 +1,9 @@
+private String[] r_select;
+
+public String[] getR_select() {
+    return r_select;
+}
+
+public void setR_select(String[] r_select) {
+    this.r_select = r_select;
+}

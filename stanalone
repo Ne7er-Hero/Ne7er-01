@@ -1,0 +1,5 @@
+exec "$WILDFLY_HOME"/bin/standalone.sh -c standalone.xml \
+-Djboss.server.base.dir=${STANDALONE_BASE} \
+-Djboss.deployment.dir=${STANDALONE_BASE}/deployments/ \
+-Djboss.server.log.dir=${STARTSH_LOGDIR} \
+-Djboss.socket.binding.port-offset=200

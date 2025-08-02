@@ -1,0 +1,41 @@
+try {
+    String cleanedTelegram = telegram;
+    try {
+        // XMLタイムスタンプタグを定義
+        final String timestampTag = "om_yyyymmddhhmissff3";
+        final Pattern pattern = Pattern.compile(
+            "<" + timestampTag + ">(.*?)</" + timestampTag + ">"
+        );
+        
+        Matcher matcher = pattern.matcher(telegram);
+        if (matcher.find()) {
+            String dirtyTimestamp = matcher.group(1);
+            
+            // タイムスタンプのクレンジング処理:
+            // 1. 数字以外の文字を除去
+            // 2. 17桁に切り詰める
+            // 3. 不足分をゼロ埋め
+            String cleanTimestamp = dirtyTimestamp.replaceAll("[^0-9]", "");
+            if (cleanTimestamp.length() > 17) {
+                cleanTimestamp = cleanTimestamp.substring(0, 17);
+            } else {
+                cleanTimestamp = String.format("%-17s", cleanTimestamp).replace(' ', '0');
+            }
+            
+            // 元データのタイムスタンプを置換
+            cleanedTelegram = matcher.replaceFirst(
+                "<" + timestampTag + ">" + cleanTimestamp + "</" + timestampTag + ">"
+            );
+        }
+    } catch (Exception e) {
+        System.out.println("タイムスタンプのクレンジングに失敗しました、元のデータを使用します: " + e.getMessage());
+    }
+    inPayloadEntity = new OrdSendInPayloadEntity(cleanedTelegram);  // クレンジング後データを使用
+} catch (Exception e) {
+    /* 送信用オーダデータエンティティが作成失敗 */
+    log.printErrLog(OrdSendConstant.PROCESSLOG_MAKE_ORDER_ENTITY_ERROR);
+    /* エラー内容を画面出力 */
+    System.out.println(OrdSendConstant.PROCESSLOG_MAKE_ORDER_ENTITY_ERROR);
+    /* プロセス異常終了 */
+    throw e;
+}

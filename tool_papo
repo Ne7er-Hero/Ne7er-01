@@ -3,7 +3,7 @@ import java.util.regex.Matcher;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-
+System.setProperty("org.apache.axis2.databinding.utils.disableXmlValidation", "true");
 
 try {
     String cleanedTelegram = telegram;

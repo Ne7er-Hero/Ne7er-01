@@ -10,3 +10,18 @@ public String getR_select() {
 
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+<div style="display: flex; justify-content: space-between; align-items: flex-start;">
+
+
+- <script type="text/javascript">
+-   writeFunctionKeys("", "", "", "", "", "", "", "", "", "閉じる");
+- </script>
++ <script type="text/javascript">
++   document.write(`
++     <table>
++       <tr>
++         <td>閉じる</td>
++       </tr>
++     </table>
++   `);
++ </script>

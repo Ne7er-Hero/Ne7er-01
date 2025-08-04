@@ -1,2 +1,9 @@
-Gitの履歴を見ると、a.jarが修正されていましたが、逆コンパイルしたところ、該当ファイルに問題がありました。
-masterブランチの同じファイルでは、逆コンパイルしても問題ありませんでした。
+private String r_select;
+
+public void setR_select(String r_select) {
+    // 什么都不做，或者 log 一下
+}
+
+public String getR_select() {
+    return r_select;
+}

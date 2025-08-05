@@ -1,1 +1,111 @@
-問題が解決しました。どうやら自分が services.xml を誤って修正してしまっていたようです。お二人のご助力、本当にありがとうございました。大変助かりました。
+<%@page contentType="text/html; charset=UTF-8" %>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="Cache-Control" content="no-cache"/>
+    <meta http-equiv="Content-Style-Type" content="text/css"/>
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <!-- 添加视口设置确保响应式布局 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>エラー画面</title>
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/stylesheet_common" type="text/css"/>
+    
+    <!-- 添加自定义样式替代Tiles的布局功能 -->
+    <style>
+        /* 基础重置 */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: auto; /* 允许滚动 */
+            font-family: Arial, sans-serif;
+        }
+        
+        /* 主容器 - 替代Tiles布局 */
+        .base {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* 至少占满整个视口高度 */
+            width: 100%;
+        }
+        
+        /* 头部样式 */
+        .header {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* 内容区域 - 可扩展 */
+        .content_title {
+            background-color: #e9e9e9;
+            padding: 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .content_body {
+            flex: 1; /* 关键：自动填充剩余空间 */
+            padding: 20px;
+            overflow: auto; /* 内容过多时可滚动 */
+        }
+        
+        /* 页脚样式 */
+        .footer {
+            background-color: #f0f0f0;
+            padding: 10px;
+            text-align: center;
+            border-top: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body onHelp="return false;" oncontextmenu="return false">
+<div class="base">
+    <!-- 头部 -->
+    <div class="header">
+        <div class="top">
+            <img src="<%=request.getContextPath() %>/images/image_logo" alt="Logo"/>
+            <!-- 功能键区域 -->
+            <div id="functionKeys">
+                <script type="text/javascript">
+                    // 模拟Tiles的writeFunctionKeys功能
+                    document.write('<button onclick="window.close()">閉じる</button>');
+                </script>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 内容标题 -->
+    <div class="content_title">エラー画面</div>
+    
+    <!-- 内容主体 -->
+    <div class="content_body">
+        <div style="padding-top:10px;">
+            <div style="margin-top:10px;">
+                <p>セッションが切れています。メニュー画面を再起動してください。</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加页脚 -->
+    <div class="footer">
+        <!-- 这里可以添加页脚内容 -->
+    </div>
+</div>
+
+<!-- 手动添加可能缺失的JS -->
+<script type="text/javascript">
+    // 添加关闭功能
+    function closeWindow() {
+        window.close();
+    }
+</script>
+</body>
+</html>

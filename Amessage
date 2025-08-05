@@ -2,33 +2,29 @@
 <%@ taglib prefix="tiles" uri="/tiles-tags" %>
 <%@ taglib prefix="s" uri="/struts-tags" %>
 
-<%-- Win7対応 修正 --%>
 <html>
-<%-- スタイルシートの読み込み --%>
 <link rel="stylesheet" href="<%=request.getContextPath() %>/stylesheet_common" type="text/css"/>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta http-equiv="Cache-Control" content="no-cache"/>
     <meta http-equiv="Content-Style-Type" content="text/css"/>
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <!-- 添加视口设置 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>エラー画面</title>
     
-    <!-- 添加关键CSS修复 -->
     <style>
         html, body {
             height: 100%;
             margin: 0;
-            overflow: auto !important; /* 启用滚动 */
+            overflow: auto !important;
         }
         .content_body {
-            min-height: calc(100vh - 150px); /* 动态计算高度 */
+            min-height: calc(100vh - 150px);
             box-sizing: border-box;
         }
     </style>
 </head>
-<body onHelp="return false;" oncontextmenu="return false"> <!-- 移除了 scroll="no" -->
+<body onHelp="return false;" oncontextmenu="return false">
 <div class="base">
     <div class="header">
     <div class="top">
@@ -40,11 +36,11 @@
 </div>
 <div class="content_title">エラー画面</div>
     <div class="content_body">
-    <div style="clear:both;padding-top:10px;"> <!-- 修正了冒号 -->
-    <div style="margin-top:10px;"> <!-- 移除了 height:600px -->
+    <div style="clear:both;padding-top:10px;">
+    <div style="margin-top:10px;">
     <p>セッションが切れています。メニュー画面を再起動してください。</p>
     </div>
     </div>
 </div>
-</body> <!-- 修正闭合标签 -->
+</body>
 </html>

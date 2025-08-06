@@ -1,23 +1,2 @@
-sw_cm_proclog(1, __FILE__, __LINE__, "MsgqNumber = %d (%s)", gr_AckMsgqTbl.i_MsgqNumber, t_ProcName);
-
-for (i_Cnt = 0; i_Cnt < gr_AckMsgqTbl.i_MsgqNumber; i_Cnt++) {
-    if (gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_UseFlag == 1) {
-        sw_cm_proclog(1, __FILE__, __LINE__,
-            "使用中: i_Cnt = %d / %d, Key = %d, SemId = %d, MsgqId = %d (%s)",
-            i_Cnt,
-            gr_AckMsgqTbl.i_MsgqNumber,
-            gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].Key,
-            gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_SemId,
-            gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_MsgqId,
-            t_ProcName
-        );
-        continue;
-    }
-    else if (gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_UseFlag == 0) {
-        i_AckSid = gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_SemId;
-        i_AckMsgqId = gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_MsgqId;
-        i_AckIpcKey = gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].Key;
-        gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_UseFlag = 1;
-        i_AckQueFlag = 1;
-    }
-}
+環境上に dsp.exe のプロセスが残存していたことが原因と考えられます。
+当該プロセスを削除し、POを再起動したところ、当該事象は解消されました。

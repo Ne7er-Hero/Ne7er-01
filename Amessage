@@ -1,46 +1,23 @@
-<%@page contentType="text/html; charset=UTF-8" %>
-<%@ taglib prefix="tiles" uri="/tiles-tags" %>
-<%@ taglib prefix="s" uri="/struts-tags" %>
+sw_cm_proclog(1, __FILE__, __LINE__, "MsgqNumber = %d (%s)", gr_AckMsgqTbl.i_MsgqNumber, t_ProcName);
 
-<html>
-<link rel="stylesheet" href="<%=request.getContextPath() %>/stylesheet_common" type="text/css"/>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta http-equiv="Cache-Control" content="no-cache"/>
-    <meta http-equiv="Content-Style-Type" content="text/css"/>
-    <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>エラー画面</title>
-    
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            overflow: auto !important;
-        }
-        .content_body {
-            min-height: calc(100vh - 150px);
-            box-sizing: border-box;
-        }
-    </style>
-</head>
-<body onHelp="return false;" oncontextmenu="return false">
-<div class="base">
-    <div class="header">
-    <div class="top">
-    <img src="<%=request.getContextPath() %>/images/image_logo"/>
-    </div>
-    <script type="text/javascript">
-    writeFunctionKeys("", "", "", "", "", "", "", "", "", "閉じる");
-    </script>
-</div>
-<div class="content_title">エラー画面</div>
-    <div class="content_body">
-    <div style="clear:both;padding-top:10px;">
-    <div style="margin-top:10px;">
-    <p>セッションが切れています。メニュー画面を再起動してください。</p>
-    </div>
-    </div>
-</div>
-</body>
-</html>
+for (i_Cnt = 0; i_Cnt < gr_AckMsgqTbl.i_MsgqNumber; i_Cnt++) {
+    if (gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_UseFlag == 1) {
+        sw_cm_proclog(1, __FILE__, __LINE__,
+            "使用中: i_Cnt = %d / %d, Key = %d, SemId = %d, MsgqId = %d (%s)",
+            i_Cnt,
+            gr_AckMsgqTbl.i_MsgqNumber,
+            gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].Key,
+            gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_SemId,
+            gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_MsgqId,
+            t_ProcName
+        );
+        continue;
+    }
+    else if (gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_UseFlag == 0) {
+        i_AckSid = gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_SemId;
+        i_AckMsgqId = gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_MsgqId;
+        i_AckIpcKey = gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].Key;
+        gr_AckMsgqTbl.ar_SysAckMsgqTbl[i_Cnt].i_UseFlag = 1;
+        i_AckQueFlag = 1;
+    }
+}

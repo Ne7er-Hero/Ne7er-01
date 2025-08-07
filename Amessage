@@ -1,1 +1,4 @@
-修正すべきだったのは /PO/aaa.c ファイルですが、もしかすると /PO/bbb.c ファイルを修正されたのかもしれません。
+for (int i = 0; i < t_MsgBuffLen; i++) {
+    printf("%02X ", (unsigned char)t_MsgBuff[i]);
+}
+printf("\n");

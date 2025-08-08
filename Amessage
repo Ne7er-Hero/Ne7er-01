@@ -1,4 +1,5 @@
-for (int i = 0; i < t_MsgBuffLen; i++) {
-    printf("%02X ", (unsigned char)t_MsgBuff[i]);
+unsigned char *p = (unsigned char *)&r_SndMsg;
+for (int i = 0; i < size; i++) {
+    printf("%02X ", p[i]);   // 十六进制打印每个字节
 }
 printf("\n");

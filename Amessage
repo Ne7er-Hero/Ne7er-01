@@ -1,5 +1,5 @@
 unsigned char *p = (unsigned char *)&r_SndMsg;
-for (int i = 0; i < size; i++) {
-    printf("%02X ", p[i]);   // 十六进制打印每个字节
+for (int i = 0; i < sizeof(r_SndMsg); i++) {
+    printf("%02X ", p[i]);
 }
 printf("\n");

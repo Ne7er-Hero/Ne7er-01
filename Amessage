@@ -1,5 +1,1 @@
-unsigned char *p = (unsigned char *)&r_SndMsg;
-for (int i = 0; i < sizeof(r_SndMsg); i++) {
-    printf("%02X ", p[i]);
-}
-printf("\n");
+printf("b_MsgLength offset: %zu\n", offsetof(R_MSG_INHEAD, b_MsgLength));

@@ -1,1 +1,6 @@
 JAVA_OPTS="$JAVA_OPTS -Doracle.jdbc.disableOciSignalHandlers=true"
+
+
+
+export JAVA_OPTS="$JAVA_OPTS -Doracle.jdbc.disableOciSignalHandlers=true"
+./start.sh

@@ -1,1 +1,1 @@
-printf("b_MsgLength offset: %zu\n", offsetof(R_MSG_INHEAD, b_MsgLength));
+JAVA_OPTS="$JAVA_OPTS -Doracle.jdbc.disableOciSignalHandlers=true"

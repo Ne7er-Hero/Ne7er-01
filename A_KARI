@@ -1,0 +1,28 @@
+---
+- name: Setup WildFly and Java links
+  hosts: all
+  become: true
+  tasks:
+
+    - name: Create symlink for WildFly under /opt
+      file:
+        src: /sb/wildfly-36.0.0.Final
+        dest: /opt/wildfly
+        state: link
+
+    - name: Unzip oracle.zip into WildFly modules directory
+      unarchive:
+        src: /sb/wildfly-36.0.0.Final/modules/system/layers/base/com/oracle.zip
+        dest: /sb/wildfly-36.0.0.Final/modules/system/layers/base/com
+        remote_src: yes
+
+    - name: Remove oracle.zip after extraction
+      file:
+        path: /sb/wildfly-36.0.0.Final/modules/system/layers/base/com/oracle.zip
+        state: absent
+
+    - name: Create symlink for Java 21 under /usr/lib/jvm
+      file:
+        src: /etc/alternatives/jre_21_openjdk
+        dest: /usr/lib/jvm/java-21-openjdk
+        state: link

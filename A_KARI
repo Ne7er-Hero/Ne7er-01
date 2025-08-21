@@ -1,27 +1,21 @@
----
-- name: Setup WildFly and Java links
-  hosts: all
-  become: true
-  tasks:
-
-    - name: Create symlink for WildFly under /opt
+    - name: /opt配下にWildFlyのシンボリックリンクを作成
       file:
         src: /sb/wildfly-36.0.0.Final
         dest: /opt/wildfly
         state: link
 
-    - name: Unzip oracle.zip into WildFly modules directory
+    - name: WildFly modulesディレクトリにoracle.zipを解凍
       unarchive:
         src: /sb/wildfly-36.0.0.Final/modules/system/layers/base/com/oracle.zip
         dest: /sb/wildfly-36.0.0.Final/modules/system/layers/base/com
         remote_src: yes
 
-    - name: Remove oracle.zip after extraction
+    - name: 解凍後にoracle.zipを削除
       file:
         path: /sb/wildfly-36.0.0.Final/modules/system/layers/base/com/oracle.zip
         state: absent
 
-    - name: Create symlink for Java 21 under /usr/lib/jvm
+    - name: /usr/lib/jvm配下にJava 21のシンボリックリンクを作成
       file:
         src: /etc/alternatives/jre_21_openjdk
         dest: /usr/lib/jvm/java-21-openjdk

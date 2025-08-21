@@ -1,11 +1,7 @@
-void* maq_timthread(void* arg) {
-    printf("Thread started, arg = %p\n", arg);
+printf("Thread started, arg = %p\n", ar_Param);
 
-    int counter = 0;
-    while(1) {
-        printf("Thread running, count = %d\n", counter++);
-        sleep(1);
-    }
-
-    return NULL;
+if (ar_Param != NULL) {
+    printf("Value at ar_Param: %d\n", *(int*)ar_Param); // 假设是 int*
+} else {
+    printf("ar_Param is NULL\n");
 }

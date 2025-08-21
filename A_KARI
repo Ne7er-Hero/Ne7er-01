@@ -1,7 +1,1 @@
-printf("Thread started, arg = %p\n", ar_Param);
-
-if (ar_Param != NULL) {
-    printf("Value at ar_Param: %d\n", *(int*)ar_Param); // 假设是 int*
-} else {
-    printf("ar_Param is NULL\n");
-}
+pthread_join(r_ThreadId, NULL);

@@ -1,22 +1,11 @@
-    - name: /opt配下にWildFlyのシンボリックリンクを作成
-      file:
-        src: /sb/wildfly-36.0.0.Final
-        dest: /opt/wildfly
-        state: link
+void* maq_timthread(void* arg) {
+    printf("Thread started, arg = %p\n", arg);
 
-    - name: WildFly modulesディレクトリにoracle.zipを解凍
-      unarchive:
-        src: /sb/wildfly-36.0.0.Final/modules/system/layers/base/com/oracle.zip
-        dest: /sb/wildfly-36.0.0.Final/modules/system/layers/base/com
-        remote_src: yes
+    int counter = 0;
+    while(1) {
+        printf("Thread running, count = %d\n", counter++);
+        sleep(1);
+    }
 
-    - name: 解凍後にoracle.zipを削除
-      file:
-        path: /sb/wildfly-36.0.0.Final/modules/system/layers/base/com/oracle.zip
-        state: absent
-
-    - name: /usr/lib/jvm配下にJava 21のシンボリックリンクを作成
-      file:
-        src: /etc/alternatives/jre_21_openjdk
-        dest: /usr/lib/jvm/java-21-openjdk
-        state: link
+    return NULL;
+}

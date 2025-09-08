@@ -1,1 +1,28 @@
-WCP の git のコミット履歴を確認したところ、現在 DSP の問題はコメントアウトされている状態となっております。DSP のコメントアウト方法については、修正方針がすでに決定済みでしょうか。
+<Configuration status="WARN">
+    <Appenders>
+        <!-- TRAN appender -->
+        <RollingFile name="TRAN"
+                     fileName="${sys:SW_D_DATALOG}/ws/waor/sw_${sys:SW_P_PROCNAME_WAOR}_txn.log"
+                     filePattern="${sys:SW_D_DATALOG}/ws/waor/sw_${sys:SW_P_PROCNAME_WAOR}_txn-%d{yyyyMMdd}.log">
+
+            <PatternLayout pattern="%d{yyyy/MM/dd, HH:mm:ss.SSS}, %m%m%n"/>
+
+            <Filters>
+                <!-- 只接受 INFO -->
+                <LevelMatchFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- for transaction -->
+        <Logger name="tran" level="info" additivity="false">
+            <AppenderRef ref="TRAN"/>
+        </Logger>
+
+        <!-- root logger 可选 -->
+        <Root level="info">
+            <AppenderRef ref="TRAN"/>
+        </Root>
+    </Loggers>
+</Configuration>

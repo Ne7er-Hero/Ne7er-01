@@ -1,28 +1,35 @@
-<Configuration status="WARN">
-    <Appenders>
-        <!-- TRAN appender -->
-        <RollingFile name="TRAN"
-                     fileName="${sys:SW_D_DATALOG}/ws/waor/sw_${sys:SW_P_PROCNAME_WAOR}_txn.log"
-                     filePattern="${sys:SW_D_DATALOG}/ws/waor/sw_${sys:SW_P_PROCNAME_WAOR}_txn-%d{yyyyMMdd}.log">
+<periodic-rotating-file-handler name="PROC"
+                                autoflush="true">
+    <formatter>
+        <pattern-formatter pattern="%d{yyyy/MM/dd HH:mm:ss.SSS}, %m%n"/>
+    </formatter>
+    <file relative-to="jboss.server.log.dir" path="proc.log"/>
+    <suffix value=".yyyy-MM-dd"/>
+    <append value="true"/>
+</periodic-rotating-file-handler>
 
-            <PatternLayout pattern="%d{yyyy/MM/dd, HH:mm:ss.SSS}, %m%m%n"/>
+<periodic-rotating-file-handler name="TRAN"
+                                autoflush="true">
+    <formatter>
+        <pattern-formatter pattern="%d{yyyy/MM/dd HH:mm:ss.SSS}, %m%n"/>
+    </formatter>
+    <file relative-to="jboss.server.log.dir" path="tran.log"/>
+    <suffix value=".yyyy-MM-dd"/>
+    <append value="true"/>
+</periodic-rotating-file-handler>
 
-            <Filters>
-                <!-- 只接受 INFO -->
-                <LevelMatchFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-        </RollingFile>
-    </Appenders>
 
-    <Loggers>
-        <!-- for transaction -->
-        <Logger name="tran" level="info" additivity="false">
-            <AppenderRef ref="TRAN"/>
-        </Logger>
 
-        <!-- root logger 可选 -->
-        <Root level="info">
-            <AppenderRef ref="TRAN"/>
-        </Root>
-    </Loggers>
-</Configuration>
+<logger category="proc" use-parent-handlers="false">
+    <level name="INFO"/>
+    <handlers>
+        <handler name="PROC"/>
+    </handlers>
+</logger>
+
+<logger category="tran" use-parent-handlers="false">
+    <level name="INFO"/>
+    <handlers>
+        <handler name="TRAN"/>
+    </handlers>
+</logger>

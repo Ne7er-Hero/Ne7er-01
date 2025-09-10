@@ -1,6 +1,14 @@
-<logger category="tran" use-parent-handlers="false">
-    <level name="INFO"/>
-    <handlers>
-        <handler name="TRAN"/>
-    </handlers>
-</logger>
+<Appenders>
+    <RollingFile name="TRAN" 
+                 fileName="${sys:SW_D_DATLOG}/ws/waor/sw_${sys:SW_P_PROCHAME_WAOR}_txn.log"
+                 filePattern="${sys:SW_D_DATLOG}/ws/waor/sw_${sys:SW_P_PROCHAME_WAOR}_txn-%d{yyyyMMdd}.log.gz">
+
+        <PatternLayout pattern="%d{yyyy/MM/dd.HH:mm:ss.SSS}, %m%n"/>
+        <Policies>
+            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        </Policies>
+        <Filters>
+            <LevelMatchFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Filters>
+    </RollingFile>
+</Appenders>

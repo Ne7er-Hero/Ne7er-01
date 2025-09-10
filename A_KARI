@@ -12,3 +12,9 @@
         </Filters>
     </RollingFile>
 </Appenders>
+
+<Loggers>
+    <Logger name="tran" additivity="false" level="info">
+        <AppenderRef ref="TRAN"/>
+    </Logger>
+</Loggers>

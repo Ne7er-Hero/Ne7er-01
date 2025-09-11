@@ -1,110 +1,58 @@
-package com.example.demo.filter;
+@Override
+public void doFilter(ServletRequest paramServletRequest, ServletResponse paramServletResponse, FilterChain paramFilterChain)
+        throws IOException, ServletException {
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+    HttpServletRequest request = (HttpServletRequest) paramServletRequest;
+    HttpServletResponse response = (HttpServletResponse) paramServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+    String uri = request.getServletPath().substring(1);
+    String[] accessibleArray = uri.split("/");
+    Iterator<String> keys = InitMain.METHOD.getKeys("api");
+    boolean checkUri = false;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Iterator;
+    logger.info("=== ApiFilter 调试日志 ===");
+    logger.info("RequestURI     = {}", request.getRequestURI());
+    logger.info("ContextPath    = {}", request.getContextPath());
+    logger.info("ServletPath    = {}", request.getServletPath());
+    logger.info("Split URI      = {}", Arrays.toString(accessibleArray));
 
-@Component  // ✅ Spring Boot 注册方式
-public class ApiFilter implements Filter {
+    while (keys.hasNext()) {
+        String key = keys.next();
+        String[] propUrlArray = InitMain.METHOD.getStringArray(key)[1].split("/");
 
-    private static final Logger logger = LoggerFactory.getLogger(ApiFilter.class);
+        logger.info("Checking key [{}], Config URL = {}, Split Config = {}",
+                key, InitMain.METHOD.getStringArray(key)[1], Arrays.toString(propUrlArray));
 
-    @Override
-    public void init(FilterConfig paramFilterConfig) throws ServletException {
-        // Spring Boot 下一般不用写初始化逻辑
-    }
+        checkUri = this.checkUri(accessibleArray, propUrlArray);
 
-    @Override
-    public void doFilter(ServletRequest paramServletRequest, ServletResponse paramServletResponse, FilterChain paramFilterChain)
-            throws IOException, ServletException {
+        logger.info("checkUri result for key [{}] = {}", key, checkUri);
 
-        HttpServletRequest request = (HttpServletRequest) paramServletRequest;
-        HttpServletResponse response = (HttpServletResponse) paramServletResponse;
+        if (checkUri) {
+            String methodType = InitMain.METHOD.getStringArray(key)[0];
+            String[] methodTypeArray = methodType.split("_");
 
-        String uri = request.getServletPath().substring(1);
-        String[] accessibleArray = uri.split("/");
-        Iterator<String> keys = InitMain.METHOD.getKeys("api");
-        boolean checkUri = false;
+            boolean methodCheck = Arrays.stream(methodTypeArray)
+                                        .anyMatch(mt -> request.getMethod().equals(mt));
 
-        while (keys.hasNext()) {
-            String key = keys.next();
-            String[] propUrlArray = InitMain.METHOD.getStringArray(key)[1].split("/");
-            checkUri = this.checkUri(accessibleArray, propUrlArray);
-
-            if (checkUri) {
-                String methodType = InitMain.METHOD.getStringArray(key)[0];
-                String[] methodTypeArray = methodType.split("_");
-
-                boolean methodCheck = Arrays.stream(methodTypeArray)
-                                            .anyMatch(mt -> request.getMethod().equals(mt));
-
-                if (!methodCheck) {
-                    CodeBean bean = ErrCodeUtils.getInstance()
-                            .getCode(Constant.ERR_24, "", methodType.replace("_", "/"), request.getMethod());
-                    logger.error(bean.getMessage(), request);
-                    String json = ReturnJsonUtils.setErrorMessage(bean);
-                    this.end(response, bean.getHttpCode(), json);
-                    return;
-                }
-                break;
+            if (!methodCheck) {
+                CodeBean bean = ErrCodeUtils.getInstance()
+                        .getCode(Constant.ERR_24, "", methodType.replace("_", "/"), request.getMethod());
+                logger.error("Method not allowed: {}", bean.getMessage(), request);
+                String json = ReturnJsonUtils.setErrorMessage(bean);
+                this.end(response, bean.getHttpCode(), json);
+                return;
             }
-        }
-
-        if (!checkUri) {
-            CodeBean bean = ErrCodeUtils.getInstance().getCode(Constant.ERR_23, "");
-            logger.error(bean.getMessage(), request);
-            String json = ReturnJsonUtils.setErrorMessage(bean);
-            this.end(response, bean.getHttpCode(), json);
-            return;
-        }
-
-        // ✅ 校验通过，继续执行后续过滤器链
-        paramFilterChain.doFilter(paramServletRequest, paramServletResponse);
-    }
-
-    @Override
-    public void destroy() {
-        // Spring Boot 下一般不用写
-    }
-
-    /**
-     * 输出 JSON 错误信息
-     */
-    private void end(HttpServletResponse response, int httpCode, String json) throws IOException {
-        response.setStatus(httpCode);
-        response.setContentType("application/json;charset=UTF-8");
-        try (PrintWriter writer = response.getWriter()) {
-            writer.write(json);
-            writer.flush();
+            break;
         }
     }
 
-    /**
-     * URI 校验逻辑
-     */
-    private boolean checkUri(String[] accessibleArray, String[] propUrlArray) {
-        if (accessibleArray.length != propUrlArray.length) {
-            return false;
-        }
-        for (int i = 0; i < accessibleArray.length; i++) {
-            if (!propUrlArray[i].equals("*") && !propUrlArray[i].equals(accessibleArray[i])) {
-                return false;
-            }
-        }
-        return true;
+    if (!checkUri) {
+        CodeBean bean = ErrCodeUtils.getInstance().getCode(Constant.ERR_23, "");
+        logger.error("No matching URI found: {}", bean.getMessage(), request);
+        String json = ReturnJsonUtils.setErrorMessage(bean);
+        this.end(response, bean.getHttpCode(), json);
+        return;
     }
+
+    paramFilterChain.doFilter(paramServletRequest, paramServletResponse);
 }

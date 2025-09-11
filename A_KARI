@@ -1,41 +1,103 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
-    <Appenders>
-        <!-- Console Appender: コンソール出力先 -->
-        <Console name="CONSOLE" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy/MM/dd HH:mm:ss.SSS} | %-5p [%t] %c - %m%n"/>
-        </Console>
+package com.example.demo.filter;
 
-        <!-- Rolling File Appender: ローテーションするファイル -->
-        <RollingFile name="PROC" 
-                    fileName="${sys:SW_D_DATLOG}/ws/waor/sw_${sys:SW_P_PROCHAME_WAOR}.log"
-                    filePattern="${sys:SW_D_DATLOG}/ws/waor/sw_${sys:SW_P_PROCHAME_WAOR}.%d{yyyyMMdd}.log">
-            <PatternLayout pattern="%d{yyyy/MM/dd HH:mm:ss.SSS} | %-5p [%t] %c - %m%n"/>
-            <Policies>
-                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-            </Policies>
-        </RollingFile>
-    </Appenders>
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-    <Loggers>
-        <!-- Apache Struts2関連のロガー -->
-        <Logger name="org.apache.struts2" level="debug" additivity="false">
-            <AppenderRef ref="PROC"/>
-        </Logger>
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-        <!-- MyBatis関連のロガー -->
-        <Logger name="org.mybatis" level="debug" additivity="false">
-            <AppenderRef ref="PROC"/>
-        </Logger>
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Iterator;
 
-        <!-- 独自アプリケーション用のロガー (業務ロジック用) -->
-        <Logger name="org.app" level="trace" additivity="false">
-            <AppenderRef ref="PROC"/>
-        </Logger>
+@Component 
+public class ApiFilter implements Filter {
 
-        <!-- ルートロガー (全体のデフォルト設定) -->
-        <Root level="error">
-            <AppenderRef ref="CONSOLE"/>
-        </Root>
-    </Loggers>
-</Configuration>
+    private static final Logger logger = LoggerFactory.getLogger(ApiFilter.class);
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // 
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest httpReq = (HttpServletRequest) request;
+        HttpServletResponse httpRes = (HttpServletResponse) response;
+
+        String uri = httpReq.getServletPath().substring(1);
+        String[] accessibleArray = uri.split("/");
+        Iterator<String> keys = InitMain.METHOD.getKeys("api");
+        boolean checkUri = false;
+
+        while (keys.hasNext()) {
+            String key = keys.next();
+            String[] propUrlArray = InitMain.METHOD.getStringArray(key)[1].split("/");
+            checkUri = this.checkUri(accessibleArray, propUrlArray);
+
+            if (checkUri) {
+                String methodType = InitMain.METHOD.getStringArray(key)[0];
+                String[] methodTypeArray = methodType.split("_");
+
+                boolean methodCheck = Arrays.stream(methodTypeArray)
+                                            .anyMatch(mt -> httpReq.getMethod().equals(mt));
+
+                if (!methodCheck) {
+                    CodeBean bean = ErrCodeUtils.getInstance()
+                            .getCode(Constant.ERR_24, "", methodType.replace("_", "/"), httpReq.getMethod());
+                    logger.error(bean.getMessage());
+                    String json = ReturnJsonUtils.setErrorMessage(bean);
+                    this.end(httpRes, bean.getHttpCode(), json);
+                    return;
+                }
+                break;
+            }
+        }
+
+        if (!checkUri) {
+            CodeBean bean = ErrCodeUtils.getInstance().getCode(Constant.ERR_23, "");
+            logger.error(bean.getMessage());
+            String json = ReturnJsonUtils.setErrorMessage(bean);
+            this.end(httpRes, bean.getHttpCode(), json);
+            return;
+        }
+
+
+        chain.doFilter(request, response);
+    }
+
+    @Override
+    public void destroy() {
+
+    }
+
+    private void end(HttpServletResponse response, int httpCode, String json) throws IOException {
+        response.setStatus(httpCode);
+        response.setContentType("application/json;charset=UTF-8");
+        try (PrintWriter writer = response.getWriter()) {
+            writer.write(json);
+            writer.flush();
+        }
+    }
+
+    private boolean checkUri(String[] accessibleArray, String[] propUrlArray) {
+        if (accessibleArray.length != propUrlArray.length) {
+            return false;
+        }
+        for (int i = 0; i < accessibleArray.length; i++) {
+            if (!propUrlArray[i].equals("*") && !propUrlArray[i].equals(accessibleArray[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+}

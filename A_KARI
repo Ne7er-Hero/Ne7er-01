@@ -18,23 +18,24 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Iterator;
 
-@Component 
+@Component  // ✅ Spring Boot 注册方式
 public class ApiFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger(ApiFilter.class);
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // 
+    public void init(FilterConfig paramFilterConfig) throws ServletException {
+        // Spring Boot 下一般不用写初始化逻辑
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilter(ServletRequest paramServletRequest, ServletResponse paramServletResponse, FilterChain paramFilterChain)
             throws IOException, ServletException {
-        HttpServletRequest httpReq = (HttpServletRequest) request;
-        HttpServletResponse httpRes = (HttpServletResponse) response;
 
-        String uri = httpReq.getServletPath().substring(1);
+        HttpServletRequest request = (HttpServletRequest) paramServletRequest;
+        HttpServletResponse response = (HttpServletResponse) paramServletResponse;
+
+        String uri = request.getServletPath().substring(1);
         String[] accessibleArray = uri.split("/");
         Iterator<String> keys = InitMain.METHOD.getKeys("api");
         boolean checkUri = false;
@@ -49,14 +50,14 @@ public class ApiFilter implements Filter {
                 String[] methodTypeArray = methodType.split("_");
 
                 boolean methodCheck = Arrays.stream(methodTypeArray)
-                                            .anyMatch(mt -> httpReq.getMethod().equals(mt));
+                                            .anyMatch(mt -> request.getMethod().equals(mt));
 
                 if (!methodCheck) {
                     CodeBean bean = ErrCodeUtils.getInstance()
-                            .getCode(Constant.ERR_24, "", methodType.replace("_", "/"), httpReq.getMethod());
-                    logger.error(bean.getMessage());
+                            .getCode(Constant.ERR_24, "", methodType.replace("_", "/"), request.getMethod());
+                    logger.error(bean.getMessage(), request);
                     String json = ReturnJsonUtils.setErrorMessage(bean);
-                    this.end(httpRes, bean.getHttpCode(), json);
+                    this.end(response, bean.getHttpCode(), json);
                     return;
                 }
                 break;
@@ -65,21 +66,24 @@ public class ApiFilter implements Filter {
 
         if (!checkUri) {
             CodeBean bean = ErrCodeUtils.getInstance().getCode(Constant.ERR_23, "");
-            logger.error(bean.getMessage());
+            logger.error(bean.getMessage(), request);
             String json = ReturnJsonUtils.setErrorMessage(bean);
-            this.end(httpRes, bean.getHttpCode(), json);
+            this.end(response, bean.getHttpCode(), json);
             return;
         }
 
-
-        chain.doFilter(request, response);
+        // ✅ 校验通过，继续执行后续过滤器链
+        paramFilterChain.doFilter(paramServletRequest, paramServletResponse);
     }
 
     @Override
     public void destroy() {
-
+        // Spring Boot 下一般不用写
     }
 
+    /**
+     * 输出 JSON 错误信息
+     */
     private void end(HttpServletResponse response, int httpCode, String json) throws IOException {
         response.setStatus(httpCode);
         response.setContentType("application/json;charset=UTF-8");
@@ -89,6 +93,9 @@ public class ApiFilter implements Filter {
         }
     }
 
+    /**
+     * URI 校验逻辑
+     */
     private boolean checkUri(String[] accessibleArray, String[] propUrlArray) {
         if (accessibleArray.length != propUrlArray.length) {
             return false;

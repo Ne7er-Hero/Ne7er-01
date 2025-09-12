@@ -1,6 +1,3 @@
-JAVA_OPTS="$JAVA_OPTS -Doracle.jdbc.disableOciSignalHandlers=true"
+logger.error("accessUrlArray = {}", Arrays.toString(accessUrlArray));
+logger.error("propUrlArray   = {}", Arrays.toString(propUrlArray));
 
-
-
-export JAVA_OPTS="$JAVA_OPTS -Doracle.jdbc.disableOciSignalHandlers=true"
-./start.sh

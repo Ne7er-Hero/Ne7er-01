@@ -1,27 +1,48 @@
----
-- name: vsftpdの設定を変更してサービスを再起動
-  hosts: all
-  become: true
+boolean checkUri = false;
 
-  tasks:
-    - name: vsftpd.confのtcp_wrappersをコメントアウト
-      replace:
-        path: /etc/vsftpd/vsftpd.conf
-        regexp: '^tcp_wrappers=YES'
-        replace: '#tcp_wrappers=YES'
-        backup: yes   # 変更前のファイルをバックアップする
+while (keys.hasNext()) {
+    String key = keys.next();
+    String[] propUrlArray = InitMain.METHOD.getStringArray(key)[1].split("/");
 
-    - name: vsftpdを再起動
-      systemd:
-        name: vsftpd
-        state: restarted
-        enabled: true   # 自動起動を有効にする
+    logger.error("Checking key [{}], Config URL = {} , Split Config = {}",
+        key, InitMain.METHOD.getStringArray(key)[1], Arrays.toString(propUrlArray));
 
-    - name: vsftpdのステータス確認
-      command: systemctl status vsftpd
-      register: vsftpd_status
-      changed_when: false   # ステータス確認では変更扱いにしない
+    boolean currentCheck = this.checkUrl(accessUrlArray, propUrlArray);
+    logger.error("CurrentCheck result for key [{}] = {}", key, currentCheck);
 
-    - name: ステータス結果を表示
-      debug:
-        var: vsftpd_status.stdout_lines
+    if (currentCheck) {
+        checkUri = true;
+
+        String methodType = InitMain.METHOD.getStringArray(key)[0];
+        String[] methodTypeArray = methodType.split("_");
+        boolean methodCheck = false;
+
+        for (String mt : methodTypeArray) {
+            if (request.getMethod().equals(mt)) {
+                methodCheck = true;
+                break;
+            }
+        }
+
+        if (!methodCheck) {
+            CodeBean bean = ErrCodeUtils.getInstance()
+                    .getCode(Constant.ERR_24, "", methodType.replace("_", "/"), request.getMethod());
+            logger.error(bean.getMessage(), request);
+
+            String json = ReturnJsonUtils.setErrorMessage(bean);
+            this.end(response, bean.getHttpCode(), json);
+            return;
+        }
+
+        break; // ✅ 匹配到了就退出 while
+    }
+}
+
+// ✅ 循环跑完后再检查
+if (!checkUri) {
+    CodeBean bean = ErrCodeUtils.getInstance().getCode(Constant.ERR_23, "");
+    logger.error("No matching URI found: {}", bean.getMessage(), request);
+    String json = ReturnJsonUtils.setErrorMessage(bean);
+    this.end(response, bean.getHttpCode(), json);
+    return;
+}

@@ -101,3 +101,32 @@ private boolean checkUri(String[] target, String[] whiteList) {
 
     return true;
 }
+
+
+
+
+
+
+
+
+
+
+
+private boolean checkUri(String[] target, String[] whiteList) {
+    if (target.length == 0 || whiteList.length == 0) {
+        return false;
+    }
+
+    // 只比较最后一个元素
+    String lastTarget = target[target.length - 1].trim();
+    String lastWhite = whiteList[whiteList.length - 1].trim();
+
+    logger.info("Comparing last segment: target='{}', whiteList='{}'", lastTarget, lastWhite);
+
+    if ("*".equals(lastWhite)) {
+        return !lastTarget.isEmpty();
+    }
+
+    return lastTarget.equals(lastWhite);
+}
+

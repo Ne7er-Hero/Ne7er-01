@@ -1,3 +1,74 @@
-logger.error("accessUrlArray = {}", Arrays.toString(accessUrlArray));
-logger.error("propUrlArray   = {}", Arrays.toString(propUrlArray));
+package your.package.name;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * 日志工具类，封装 SLF4J
+ */
+public class LoggerUtil {
+
+    private final Logger logger;
+    private final int loggerStackTrace = 2; // 控制取调用栈深度
+
+    private LoggerUtil(Class<?> clazz) {
+        this.logger = LoggerFactory.getLogger(clazz);
+    }
+
+    /**
+     * 工厂方法，外部用 LoggerUtil.getLogger(XXX.class) 获取实例
+     */
+    public static LoggerUtil getLogger(Class<?> clazz) {
+        return new LoggerUtil(clazz);
+    }
+
+    // ============ 内部通用方法 ============
+    private String formatMessage(String msg) {
+        StackTraceElement[] ste = new Throwable().getStackTrace();
+        int lineNo = ste[this.loggerStackTrace].getLineNumber();
+        return "line=" + lineNo + " " + msg;
+    }
+
+    private String formatMessage(String msg, HttpServletRequest request) {
+        StackTraceElement[] ste = new Throwable().getStackTrace();
+        int lineNo = ste[this.loggerStackTrace].getLineNumber();
+        StringBuilder sb = new StringBuilder();
+        sb.append("line=").append(lineNo).append(" ").append(msg);
+
+        if (request != null) {
+            sb.append(" [sessionId=").append(request.getSession().getId()).append("]");
+            sb.append(" [remoteAddr=").append(request.getRemoteAddr()).append("]");
+        }
+        return sb.toString();
+    }
+
+    // ============ 对外暴露的方法 ============
+    public void info(String msg) {
+        logger.info(formatMessage(msg));
+    }
+
+    public void info(String msg, HttpServletRequest request) {
+        logger.info(formatMessage(msg, request));
+    }
+
+    public void debug(String msg) {
+        logger.debug(formatMessage(msg));
+    }
+
+    public void warn(String msg) {
+        logger.warn(formatMessage(msg));
+    }
+
+    public void error(String msg) {
+        logger.error(formatMessage(msg));
+    }
+
+    public void error(String msg, Throwable t) {
+        logger.error(formatMessage(msg), t);
+    }
+
+    public void error(String msg, HttpServletRequest request, Throwable t) {
+        logger.error(formatMessage(msg, request), t);
+    }
+}

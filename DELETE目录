@@ -1,11 +1,11 @@
 <jboss-deployment-structure>
     <deployment>
+        <exclusions>
+            <module name="org.slf4j" />  <!-- 排除 WildFly 默认模块 -->
+        </exclusions>
         <dependencies>
-            <module name="org.slf4j" />
-            <module name="org.jboss.logging" />
+            <module name="org.slf4j" slot="main"/>
+            <module name="org.jboss.logging"/>
         </dependencies>
     </deployment>
 </jboss-deployment-structure>
-
-
-jboss-deployment-structure.xml

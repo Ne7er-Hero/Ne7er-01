@@ -1,48 +1,120 @@
-boolean checkUri = false;
+package jp.co.softbank.api.common;
 
-while (keys.hasNext()) {
-    String key = keys.next();
-    String[] propUrlArray = InitMain.METHOD.getStringArray(key)[1].split("/");
+import javax.servlet.http.HttpServletRequest;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger as Slf4jLogger;
 
-    logger.error("Checking key [{}], Config URL = {} , Split Config = {}",
-        key, InitMain.METHOD.getStringArray(key)[1], Arrays.toString(propUrlArray));
+/**
+ * クラス名：Logger
+ * 概要：ログメッセージ出力（SLF4J版、Seasar互換）
+ * @since 2024/02/14
+ * @author 李
+ * @version 2.2
+ */
+public class Logger {
 
-    boolean currentCheck = this.checkUrl(accessUrlArray, propUrlArray);
-    logger.error("CurrentCheck result for key [{}] = {}", key, currentCheck);
+    /** SLF4J Logger インスタンス */
+    private Slf4jLogger logger;
 
-    if (currentCheck) {
-        checkUri = true;
-
-        String methodType = InitMain.METHOD.getStringArray(key)[0];
-        String[] methodTypeArray = methodType.split("_");
-        boolean methodCheck = false;
-
-        for (String mt : methodTypeArray) {
-            if (request.getMethod().equals(mt)) {
-                methodCheck = true;
-                break;
-            }
-        }
-
-        if (!methodCheck) {
-            CodeBean bean = ErrCodeUtils.getInstance()
-                    .getCode(Constant.ERR_24, "", methodType.replace("_", "/"), request.getMethod());
-            logger.error(bean.getMessage(), request);
-
-            String json = ReturnJsonUtils.setErrorMessage(bean);
-            this.end(response, bean.getHttpCode(), json);
-            return;
-        }
-
-        break; // ✅ 匹配到了就退出 while
+    /** コンストラクタ */
+    private Logger(Class<?> cls) {
+        this.logger = LoggerFactory.getLogger(cls);
     }
-}
 
-// ✅ 循环跑完后再检查
-if (!checkUri) {
-    CodeBean bean = ErrCodeUtils.getInstance().getCode(Constant.ERR_23, "");
-    logger.error("No matching URI found: {}", bean.getMessage(), request);
-    String json = ReturnJsonUtils.setErrorMessage(bean);
-    this.end(response, bean.getHttpCode(), json);
-    return;
+    /**
+     * ログ出力用オブジェクトの生成
+     * @param cls クラスオブジェクト
+     * @return Logger ログ出力オブジェクト
+     */
+    public static Logger getInstance(Class<?> cls) {
+        return new Logger(cls);
+    }
+
+    // ====== 基本ログ出力 ======
+
+    public void info(String msg) {
+        logger.info(msg);
+    }
+
+    public void info(String msg, Throwable t) {
+        logger.info(msg, t);
+    }
+
+    public void debug(String msg) {
+        logger.debug(msg);
+    }
+
+    public void debug(String msg, Throwable t) {
+        logger.debug(msg, t);
+    }
+
+    public void error(String msg) {
+        logger.error(msg);
+    }
+
+    public void error(String msg, Throwable t) {
+        logger.error(msg, t);
+    }
+
+    public void warn(String msg) {
+        logger.warn(msg);
+    }
+
+    public void warn(String msg, Throwable t) {
+        logger.warn(msg, t);
+    }
+
+    // ====== HttpServletRequest 付きログ ======
+
+    private String buildRequestInfo(HttpServletRequest request) {
+        if (request == null) {
+            return "[no request]";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("[IP=").append(request.getRemoteAddr());
+        sb.append(", Method=").append(request.getMethod());
+        sb.append(", URI=").append(request.getRequestURI());
+        if (request.getQueryString() != null) {
+            sb.append("?").append(request.getQueryString());
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    public void info(HttpServletRequest request, String msg) {
+        logger.info(buildRequestInfo(request) + " " + msg);
+    }
+
+    public void error(HttpServletRequest request, String msg) {
+        logger.error(buildRequestInfo(request) + " " + msg);
+    }
+
+    public void error(HttpServletRequest request, String msg, Throwable t) {
+        logger.error(buildRequestInfo(request) + " " + msg, t);
+    }
+
+    public void debug(HttpServletRequest request, String msg) {
+        logger.debug(buildRequestInfo(request) + " " + msg);
+    }
+
+    public void warn(HttpServletRequest request, String msg) {
+        logger.warn(buildRequestInfo(request) + " " + msg);
+    }
+
+    // ====== Seasar互換: (msg, request) パターン ======
+    public void error(String msg, HttpServletRequest request) {
+        logger.error(buildRequestInfo(request) + " " + msg);
+    }
+
+    public void info(String msg, HttpServletRequest request) {
+        logger.info(buildRequestInfo(request) + " " + msg);
+    }
+
+    public void debug(String msg, HttpServletRequest request) {
+        logger.debug(buildRequestInfo(request) + " " + msg);
+    }
+
+    public void warn(String msg, HttpServletRequest request) {
+        logger.warn(buildRequestInfo(request) + " " + msg);
+    }
 }

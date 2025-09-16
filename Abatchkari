@@ -1,20 +1,19 @@
 package jp.co.softbank.api.common;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Logger as Slf4jLogger;
 
 /**
  * クラス名：Logger
  * 概要：ログメッセージ出力（SLF4J版、Seasar互換）
  * @since 2024/02/14
  * @author 李
- * @version 2.2
+ * @version 2.3
  */
 public class Logger {
 
     /** SLF4J Logger インスタンス */
-    private Slf4jLogger logger;
+    private org.slf4j.Logger logger;
 
     /** コンストラクタ */
     private Logger(Class<?> cls) {

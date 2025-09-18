@@ -1,58 +1,62 @@
-@Override
-public void doFilter(ServletRequest paramServletRequest, ServletResponse paramServletResponse, FilterChain paramFilterChain)
-        throws IOException, ServletException {
+status = error
+name = PropertiesConfig
 
-    HttpServletRequest request = (HttpServletRequest) paramServletRequest;
-    HttpServletResponse response = (HttpServletResponse) paramServletResponse;
+################################
+# Loggers
+################################
+# 如果有需要单独指定包级别，可以在这里写
+# 例如：
+# logger.example.name = com.example
+# logger.example.level = debug
+# logger.example.additivity = false
+# logger.example.appenderRefs = FILE
+# logger.example.appenderRef.FILE.ref = FILE
 
-    String uri = request.getServletPath().substring(1);
-    String[] accessibleArray = uri.split("/");
-    Iterator<String> keys = InitMain.METHOD.getKeys("api");
-    boolean checkUri = false;
+################################
+# Root Logger
+################################
+rootLogger.level = info
+rootLogger.appenderRefs = A1, FILE, OVO
+rootLogger.appenderRef.A1.ref = A1
+rootLogger.appenderRef.FILE.ref = FILE
+rootLogger.appenderRef.OVO.ref = OVO
 
-    logger.info("=== ApiFilter 调试日志 ===");
-    logger.info("RequestURI     = {}", request.getRequestURI());
-    logger.info("ContextPath    = {}", request.getContextPath());
-    logger.info("ServletPath    = {}", request.getServletPath());
-    logger.info("Split URI      = {}", Arrays.toString(accessibleArray));
+################################
+# Console Appender A1
+################################
+appender.A1.type = Console
+appender.A1.name = A1
+appender.A1.filter.threshold.type = ThresholdFilter
+appender.A1.filter.threshold.level = info
+appender.A1.layout.type = PatternLayout
+appender.A1.layout.pattern = %d[yyyy-MM-dd]*%d[HH:mm:ss.SSS]*%X{HOST_NAME}*%o*TOCA-API*%X{ERROR_CODE} *%m*%o*%X{REQUEST_ID}*%X{SESSION_ID}*%X{USER_AGENT}*
 
-    while (keys.hasNext()) {
-        String key = keys.next();
-        String[] propUrlArray = InitMain.METHOD.getStringArray(key)[1].split("/");
+################################
+# File Appender FILE
+################################
+appender.FILE.type = RollingFile
+appender.FILE.name = FILE
+appender.FILE.fileName = /sb/logs/${apserver.Name}/toca-api.log
+appender.FILE.filePattern = /sb/logs/${apserver.Name}/toca-api-%d{yyyy-MM-dd}.log
+appender.FILE.layout.type = PatternLayout
+appender.FILE.layout.pattern = %d[yyyy-MM-dd]*%d[HH:mm:ss.SSS]*%X{HOST_NAME}*%o*TOCA-API*%X{ORDER_ID} *%m*%o*%X{HOT_METHOD}*%X{SERVER_NAME}*%X{CLIENT_P}*%X{REFERER}*%X{REQUEST_URL}*%X{USER_ID}*%X{USER_AGENT}*
+appender.FILE.policies.type = Policies
+appender.FILE.policies.time.type = TimeBasedTriggeringPolicy
+appender.FILE.policies.time.interval = 1
+appender.FILE.policies.time.modulate = true
 
-        logger.info("Checking key [{}], Config URL = {}, Split Config = {}",
-                key, InitMain.METHOD.getStringArray(key)[1], Arrays.toString(propUrlArray));
-
-        checkUri = this.checkUri(accessibleArray, propUrlArray);
-
-        logger.info("checkUri result for key [{}] = {}", key, checkUri);
-
-        if (checkUri) {
-            String methodType = InitMain.METHOD.getStringArray(key)[0];
-            String[] methodTypeArray = methodType.split("_");
-
-            boolean methodCheck = Arrays.stream(methodTypeArray)
-                                        .anyMatch(mt -> request.getMethod().equals(mt));
-
-            if (!methodCheck) {
-                CodeBean bean = ErrCodeUtils.getInstance()
-                        .getCode(Constant.ERR_24, "", methodType.replace("_", "/"), request.getMethod());
-                logger.error("Method not allowed: {}", bean.getMessage(), request);
-                String json = ReturnJsonUtils.setErrorMessage(bean);
-                this.end(response, bean.getHttpCode(), json);
-                return;
-            }
-            break;
-        }
-    }
-
-    if (!checkUri) {
-        CodeBean bean = ErrCodeUtils.getInstance().getCode(Constant.ERR_23, "");
-        logger.error("No matching URI found: {}", bean.getMessage(), request);
-        String json = ReturnJsonUtils.setErrorMessage(bean);
-        this.end(response, bean.getHttpCode(), json);
-        return;
-    }
-
-    paramFilterChain.doFilter(paramServletRequest, paramServletResponse);
-}
+################################
+# File Appender OVO
+################################
+appender.OVO.type = RollingFile
+appender.OVO.name = OVO
+appender.OVO.fileName = /sb/logs/${apserver.Name}/ovo.log
+appender.OVO.filePattern = /sb/logs/${apserver.Name}/ovo-%d{yyyy-MM-dd}.log
+appender.OVO.layout.type = PatternLayout
+appender.OVO.layout.pattern = %d[yyyy-MM-dd]*%d[HH:mm:ss.SSS]*%X{HOST_NAME}*%o*TOCA-API*%X{ORDER_ID} *%m*%o*%X{HOT_METHOD}*%X{SERVER_NAME}*%X{CLIENT_P}*%X{REFERER}*%X{REQUEST_URL}*%X{USER_ID}*%X{USER_AGENT}*
+appender.OVO.policies.type = Policies
+appender.OVO.policies.time.type = TimeBasedTriggeringPolicy
+appender.OVO.policies.time.interval = 1
+appender.OVO.policies.time.modulate = true
+appender.OVO.filter.threshold.type = ThresholdFilter
+appender.OVO.filter.threshold.level = warn

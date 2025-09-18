@@ -1,119 +1,29 @@
-package jp.co.softbank.api.common;
+<dependencies>
+    <!-- SLF4J API -->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>2.0.16</version>
+    </dependency>
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.LoggerFactory;
+    <!-- SLF4J to Log4j2 binding -->
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j2-impl</artifactId>
+        <version>2.23.1</version>
+    </dependency>
 
-/**
- * クラス名：Logger
- * 概要：ログメッセージ出力（SLF4J版、Seasar互換）
- * @since 2024/02/14
- * @author 李
- * @version 2.3
- */
-public class Logger {
+    <!-- Log4j2 Core -->
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.23.1</version>
+    </dependency>
 
-    /** SLF4J Logger インスタンス */
-    private org.slf4j.Logger logger;
-
-    /** コンストラクタ */
-    private Logger(Class<?> cls) {
-        this.logger = LoggerFactory.getLogger(cls);
-    }
-
-    /**
-     * ログ出力用オブジェクトの生成
-     * @param cls クラスオブジェクト
-     * @return Logger ログ出力オブジェクト
-     */
-    public static Logger getInstance(Class<?> cls) {
-        return new Logger(cls);
-    }
-
-    // ====== 基本ログ出力 ======
-
-    public void info(String msg) {
-        logger.info(msg);
-    }
-
-    public void info(String msg, Throwable t) {
-        logger.info(msg, t);
-    }
-
-    public void debug(String msg) {
-        logger.debug(msg);
-    }
-
-    public void debug(String msg, Throwable t) {
-        logger.debug(msg, t);
-    }
-
-    public void error(String msg) {
-        logger.error(msg);
-    }
-
-    public void error(String msg, Throwable t) {
-        logger.error(msg, t);
-    }
-
-    public void warn(String msg) {
-        logger.warn(msg);
-    }
-
-    public void warn(String msg, Throwable t) {
-        logger.warn(msg, t);
-    }
-
-    // ====== HttpServletRequest 付きログ ======
-
-    private String buildRequestInfo(HttpServletRequest request) {
-        if (request == null) {
-            return "[no request]";
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("[IP=").append(request.getRemoteAddr());
-        sb.append(", Method=").append(request.getMethod());
-        sb.append(", URI=").append(request.getRequestURI());
-        if (request.getQueryString() != null) {
-            sb.append("?").append(request.getQueryString());
-        }
-        sb.append("]");
-        return sb.toString();
-    }
-
-    public void info(HttpServletRequest request, String msg) {
-        logger.info(buildRequestInfo(request) + " " + msg);
-    }
-
-    public void error(HttpServletRequest request, String msg) {
-        logger.error(buildRequestInfo(request) + " " + msg);
-    }
-
-    public void error(HttpServletRequest request, String msg, Throwable t) {
-        logger.error(buildRequestInfo(request) + " " + msg, t);
-    }
-
-    public void debug(HttpServletRequest request, String msg) {
-        logger.debug(buildRequestInfo(request) + " " + msg);
-    }
-
-    public void warn(HttpServletRequest request, String msg) {
-        logger.warn(buildRequestInfo(request) + " " + msg);
-    }
-
-    // ====== Seasar互換: (msg, request) パターン ======
-    public void error(String msg, HttpServletRequest request) {
-        logger.error(buildRequestInfo(request) + " " + msg);
-    }
-
-    public void info(String msg, HttpServletRequest request) {
-        logger.info(buildRequestInfo(request) + " " + msg);
-    }
-
-    public void debug(String msg, HttpServletRequest request) {
-        logger.debug(buildRequestInfo(request) + " " + msg);
-    }
-
-    public void warn(String msg, HttpServletRequest request) {
-        logger.warn(buildRequestInfo(request) + " " + msg);
-    }
-}
+    <!-- Log4j2 API -->
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>2.23.1</version>
+    </dependency>
+</dependencies>

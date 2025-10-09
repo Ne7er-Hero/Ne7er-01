@@ -42,8 +42,9 @@ sudo systemctl restart a.service
 
 
 [Service]
-# 指定自定义 standalone.conf
+# 自定义 standalone.conf
 Environment="STANDALONE_CONF=/opt/wildfly/custom/standalone.conf"
 
-# JMX 参数也可以在这里追加
-Environment="JAVA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=62660 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+# 在 override 里追加 JMX 参数而不是覆盖
+Environment="JAVA_OPTS=$JAVA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=62660 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+

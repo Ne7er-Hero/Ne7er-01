@@ -37,6 +37,10 @@ Environment="JAVA_OPTS=$JAVA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.manag
 
 
 
+sudo systemctl daemon-reexec
+sudo systemctl restart a.service
+
+
 [Service]
 # 指定自定义 standalone.conf
 Environment="STANDALONE_CONF=/opt/wildfly/custom/standalone.conf"

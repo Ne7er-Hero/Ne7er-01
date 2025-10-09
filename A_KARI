@@ -1,3 +1,9 @@
 [Service]
 Environment="JAVA_OPTS_APPEND=-Xlog:gc*,gc+heap=debug:file=/tmp/wildfly-gc.log:time,uptime,level,tags"
 ExecStart=/opt/wildfly/bin/standalone.sh -b 0.0.0.0
+
+
+JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote"
+JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=9010"
+JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false"

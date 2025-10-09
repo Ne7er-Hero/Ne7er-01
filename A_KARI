@@ -33,3 +33,13 @@ Environment="JAVA_OPTS=$JAVA_OPTS -Dcom.sun.management.jmxremote \
 
 
 Environment="JAVA_OPTS=$JAVA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=62660 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+
+
+
+
+[Service]
+# 指定自定义 standalone.conf
+Environment="STANDALONE_CONF=/opt/wildfly/custom/standalone.conf"
+
+# JMX 参数也可以在这里追加
+Environment="JAVA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=62660 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"

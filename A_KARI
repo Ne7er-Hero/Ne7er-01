@@ -13,3 +13,18 @@ JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false"
 -Djavax.management.builder.initial= -Dcom.sun.management.jmxremote.port=62660 \
 -Dcom.sun.management.jmxremote.authenticate=false \
 -Dcom.sun.management.jmxremote.ssl=false
+
+
+JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=62660 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+
+
+
+if [ "x$JAVA_OPTS" = "x" ] ; then
+   JAVA_OPTS="$JBOSS_JAVA_SIZING -Djava.net.preferIPv4Stack=true"
+   JAVA_OPTS="$JAVA_OPTS -Xlog:gc:file=/logs/tocaapisrv00-01/gc.log:time,uptime,level,tags"
+   JAVA_OPTS="$JAVA_OPTS -Djboss.modules.system.pkgs=$JBOSS_MODULES_SYSTEM_PKGS -Djava.awt.headless=true"
+   # ↓↓↓ 新追加的 JMX 设置（不会和 WildFly 冲突）
+   JAVA_OPTS="$JAVA_OPTS -Djavax.management.builder.initial="
+   JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=62660"
+   JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+   JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false"

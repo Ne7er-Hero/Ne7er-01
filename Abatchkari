@@ -11,3 +11,10 @@ JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote"
 JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=62660"
 JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false"
 JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+
+
+Environment="JAVA_OPTS=-Djava.util.logging.manager=org.jboss.logmanager.LogManager \
+-Dcom.sun.management.jmxremote \
+-Dcom.sun.management.jmxremote.port=62660 \
+-Dcom.sun.management.jmxremote.ssl=false \
+-Dcom.sun.management.jmxremote.authenticate=false"

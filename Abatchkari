@@ -1,4 +1,5 @@
-Environment="JAVA_OPTS=-Xms512m -Xmx1024m \
+Environment="JAVA_OPTS=-Djava.util.logging.manager=org.jboss.logmanager.LogManager \
+-Xms512m -Xmx1024m \
 -Dcom.sun.management.jmxremote \
 -Dcom.sun.management.jmxremote.port=62660 \
 -Dcom.sun.management.jmxremote.ssl=false \
